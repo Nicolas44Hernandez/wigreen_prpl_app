@@ -33,6 +33,10 @@ Add the python3-amx recipe
 ```bash
 user@prplSDK sdkworkdir$ devtool modify python-amx
 ``` 
+Add the python3-falsk recipe
+```bash
+user@prplSDK sdkworkdir$ devtool modify python-flask
+``` 
 
 Add the recipe
 ```bash
