@@ -1,5 +1,6 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 SRC_URI += "file://orchestrator.py"
+SRC_URI += "file://script.sh"
 
 S = "${WORKDIR}"
 
@@ -31,5 +32,10 @@ FILES:${PN} += "/usr/srv/orchestrator.py"
 
 do_install:append () {
         # Specify install commands here
-        :
+    install -d ${D}/etc/init.d
+    install -D -p -m 0755 script.sh ${D}/etc/init.d/orchestrator
 }
+
+inherit update-rc.d
+INITSCRIPT_NAME = "orchestrator"
+INITSCRIPT_PARAMS = "start 99 2 3 4 5 . stop 10 0 1 6 ."
