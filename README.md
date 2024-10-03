@@ -12,45 +12,27 @@ Run the sdk helper
 ~/sdk_helper/prpl-sdk
 ```
 
-Search the application recipe
+Add the dependencies recipes 
 ```bash
-user@prplSDK sdkworkdir$ devtool search wigreen
-NOTE: Starting bitbake server...
-NOTE: Reconnecting to bitbake server...
-NOTE: Retrying server connection (#1)...
-WARNING: You have included the meta-virtualization layer, but 'virtualization' has not been enabled in your DISTRO_FEATURES. Some bbappend files may not take effect. See the meta-virtualization README for details on enabling virtualization support.
-Loading cache: 100% |########################################################################################################################################################################| Time: 0:00:02
-Loaded 5257 entries from dependency cache.
-Parsing recipes: 100% |######################################################################################################################################################################| Time: 0:00:01
-Parsing of 3881 .bb files complete (3878 cached, 3 parsed). 5258 targets, 384 skipped, 0 masked, 0 errors.
-
-Summary: There was 1 WARNING message shown.
-wigreen 
-user@prplSDK sdkworkdir$
-```
-
-Add the python3-amx recipe
-```bash
-user@prplSDK sdkworkdir$ devtool modify python-amx
-``` 
-Add the python3-falsk recipe
-```bash
-user@prplSDK sdkworkdir$ devtool modify python-flask
+devtool modify python-amx
+devtool modify python3-flask
+devtool modify python3-yamlloader
+devtool modify python3-flask-restful
 ``` 
 
-Add the recipe
+Add the application recipe
 ```bash
-user@prplSDK sdkworkdir$ devool modify wigreen
+devool modify wigreen
 ``` 
 
 Build the project 
 ```bash
-user@prplSDK sdkworkdir$ devool build wigreen
+devool build wigreen
 ``` 
 
 Build image 
 ```bash
-user@prplSDK sdkworkdir$ devool build wigreen
+devool build-image
 ``` 
 
 ## Publish the image
@@ -64,15 +46,83 @@ user@prplSDK sdkworkdir$ skopeo copy oci:/sdkworkdir/tmp/deploy/images/container
 ## Install the image
 Connect to Prpl device
 
+If the prpl device is an RPI
 ```bash
-ubus-cli "SoftwareModules.InstallDU(URL = 'docker://<REGISTRY>/orchestrator', Username = <USER> , Password = <PASSWORD>, ExecutionEnvRef = 'generic', UUID = 'aade1eee-8ee1-5690-887f-b41aab7ca15e')"
+ubus-cli "SoftwareModules.InstallDU(URL = 'docker://<REGISTRY>/orchestrator', Username = <USER> , Password = <PASSWORD>, ExecutionEnvRef = 'generic', UUID = 'aade1eee-8ee1-5690-887f-b41aab7ca15e', HostObject = [{ 'Source'= '/var/run/usp/broker_agent_path', 'Destination'= '/run/imtp/broker_agent_path', Options = 'type=mount'}, { 'Source'= '/var/run/usp/broker_controller_path', 'Destination'= '/run/imtp/broker_controller_path', Options = 'type=mount'}], NetworkConfig = {"PortForwarding" = [{"Interface" = "Lan", "ExternalPort" = 8000, "InternalPort" = 6060, "Protocol" = "TCP"}]})"
 
 ``` 
 
-## Attach to container
+If the prpl device is a LB6
+```bash
+If the prpl device is an RPI
+```bash
+ubus-cli "SoftwareModules.InstallDU(URL = 'docker://<REGISTRY>/orchestrator', Username = <USER> , Password = <PASSWORD>, ExecutionEnvRef = 'generic', UUID = 'aade1eee-8ee1-5690-887f-b41aab7ca15e', NetworkConfig = {"PortForwarding" = [{"Interface" = "Lan", "ExternalPort" = 8000, "InternalPort" = 6060, "Protocol" = "TCP"}]})"
+
+``` 
+
+## Configure permission
+To allow the container to access to datamodel, it is necessary to allow it. It is also for exposure on host or get a information from the host.
+First, get the endpointID of the container, the container name is the DUID or UUID depending of the platform
+
+```bash
+lxc-attach -n <DUID|UUID> -- ubus-cli 'LocalAgent.EndpointID?' | grep LocalAgent.EndpointID
+```
+
+Check if there is a Controller for the container
+```bash
+ubus-cli 'LocalAgent.Controller.?' | grep <DUID|UUID>
+```
+
+If there is no result create the Controller
+```bash
+ubus-cli 'LocalAgent.Controller.+{Alias = "controller-<DUID>", AssignedRole = "Device.LocalAgent.ControllerTrust.Role.2", Enable=1, EndpointID = "<ENDPOINT_ID_CONTAINER>"}'
+```
+
+Add the MTP configuration
+```bash
+ubus-cli 'LocalAgent.Controller.controller-<DUID>.MTP+{Alias = "mtp-uds", Enable=1, Protocol = "UDS"}'
+```
+
+If the Controller already exist, add the operator role to the container, replace the controller-<DUID> with the DUID
+```bash
+ubus-cli 'LocalAgent.Controller.controller-1c4f86b1-35ec-5a2c-997a-f1fa9271b8bf.AssignedRole="Device.LocalAgent.ControllerTrust.Role.2"'
+```
+
+Add the choosen permission for the given role.
+```bash
+ubus-cli 'LocalAgent.ControllerTrust.Role.2.Permission.+{Alias = "my-permissions", CommandEvent = "rwxn", Enable=true, InstantiatedObj = "rwxn", Obj = "rwxn", Order=1, Param="rwxn", Targets="Device.WiFi.Radio."}'
+``` 
+
+If the ControllerTrust.Role doesn't exist it is possible to add it
+```bash
+ubus-cli 'LocalAgent.ControllerTrust.Role+{Alias = "operator", Enable = true, Name = "operator"}'
+``` 
+
+NB if the field already exist, only change the Targets or change parameters manually
+```bash
+ubus-cli 'LocalAgent.ControllerTrust.Role.2.Permission.1.Targets="Device.DeviceInfo.,Device.X_Orange_Demo.
+``` 
+
+## Run the application 
+Connect to the Prpl device.
+Attach to container
 ```bash
 lxc-ls --fancy
 lxc-attach <DUID>
+```
+
+run the application 
+```bash
+cd /usr/srv/
+export FLASK_APP="server/app:create_app()"
+export FLASK_ENV="development"
+flask run --host '0.0.0.0' --port 6060
+```
+
+## Test the rest apis
+From a device connected to the lan 
+```bash
+curl 192.168.102.1:8000/wifi/status
 ```
 
 # UNINSTALL 
