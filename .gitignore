@@ -1,0 +1,23 @@
+tmux-*.log
+# Environments
+.venv
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+coverage.xml
+*.cover
+*.py,cover
+cover/
+report/
+coverage/
+
+# Logs
+logs/
