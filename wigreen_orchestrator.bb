@@ -1,6 +1,6 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
-SRC_URI += "file://orchestrator.py"
-SRC_URI += "file://script.sh"
+SRC_URI += "file://server"
+
 
 S = "${WORKDIR}"
 
@@ -22,20 +22,33 @@ do_compile () {
 }
 
 do_install () {
-        install -d ${D}/usr/srv
-        install -D -p -m 0755 orchestrator.py ${D}/usr/srv/
+        # APP
+        install -d ${D}/usr/srv/server        
+        install -m 0644 ${S}/server/app.py ${D}/usr/srv/server/ 
+        install -m 0644 ${S}/server/extension.py ${D}/usr/srv/server/ 
+        install -m 0644 ${S}/server/__init__.py ${D}/usr/srv/server/ 
+        
+        # CONFIG
+        install -d ${D}/usr/srv/server/config
+        install -m 0644 ${S}/server/config/* ${D}/usr/srv/server/config/
+
+        # INTERFACES
+        install -d ${D}/usr/srv/server/interfaces
+        install -m 0644 ${S}/server/interfaces/__init__.py ${D}/usr/srv/server/interfaces/
+        install -d ${D}/usr/srv/server/interfaces/amx_usp_interface
+        install -m 0644 ${S}/server/interfaces/amx_usp_interface/* ${D}/usr/srv/server/interfaces/amx_usp_interface/
+
+        # MANAGERS
+        install -d ${D}/usr/srv/server/managers
+        install -m 0644 ${S}/server/managers/__init__.py ${D}/usr/srv/server/managers/
+        install -d ${D}/usr/srv/server/managers/wifi_bands_manager
+        install -m 0644 ${S}/server/managers/wifi_bands_manager/* ${D}/usr/srv/server/managers/wifi_bands_manager/
+
+        # REST API
+        install -d ${D}/usr/srv/server/rest_api
+        install -m 0644 ${S}/server/rest_api/__init__.py ${D}/usr/srv/server/rest_api/
+        install -d ${D}/usr/srv/server/rest_api/wifi_controler
+        install -m 0644 ${S}/server/rest_api/wifi_controler/* ${D}/usr/srv/server/rest_api/wifi_controler/
 }
 
-FILES:${PN} += "/etc/init.d/orchestrator"
-FILES:${PN} += "/usr/srv/orchestrator.py"
-
-
-do_install:append () {
-        # Specify install commands here
-    install -d ${D}/etc/init.d
-    install -D -p -m 0755 script.sh ${D}/etc/init.d/orchestrator
-}
-
-inherit update-rc.d
-INITSCRIPT_NAME = "orchestrator"
-INITSCRIPT_PARAMS = "start 99 2 3 4 5 . stop 10 0 1 6 ."
+FILES:${PN} += "/usr/srv/server/*"

@@ -1,10 +1,3 @@
 API_TITLE: ORCHESTRATOR API
 API_VERSION: v1
 
-# openapi.json version and URL prefix
-OPENAPI_VERSION: 3.0.3
-OPENAPI_URL_PREFIX: /
-
-# Enable swagger UI
-OPENAPI_SWAGGER_UI_PATH: /docs
-OPENAPI_SWAGGER_UI_URL: https://cdn.jsdelivr.net/npm/swagger-ui-dist/

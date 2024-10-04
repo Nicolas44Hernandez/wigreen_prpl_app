@@ -5,13 +5,15 @@ from logging.config import dictConfig
 from os import path
 import yaml
 from flask import Flask
+from flask_restful import Api
+from flask_apispec import FlaskApiSpec
 
 # Managers
 from server.managers.wifi_bands_manager import wifi_bands_manager_service
 
 # Rest APIs
-from .extension import api
-from server.rest_api.wifi_controler import bp as wifi_controler_bp
+api = Api()
+from server.rest_api.wifi_controler import WifiStatusApi
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +42,8 @@ def create_app(
 
     # Register extensions
     register_extensions(app)
-    # Register blueprints for REST API
-    register_blueprints(app)
+    # Register REST APIs
+    register_apis(app)
 
     logger.info("App ready!!")
 
@@ -51,31 +53,18 @@ def create_app(
 def register_extensions(app: Flask):
     """Initialize all extensions"""
 
-    # Initialize REST APIs.
-    #
-    # The spec_kwargs dict is used to generate the OpenAPI document that describes our APIs.
-    # The securitySchemes field defines the security scheme used to protect our APIs.
-    #   - BasicAuth  allows to authenticate a user with a login and a password.
-    #   - BearerAuth allows to authenticate a user using a token (the /login API allows to a user
-    #     to retrieve a valid token).
-
-    api.init_app(
-        app,
-        spec_kwargs={
-            "info": {"description": "`Orchestrator` OpenAPI 3.0 specification."},
-            "components": {
-                "securitySchemes": {
-                    "basicAuth": {"type": "http", "scheme": "basic"},
-                    "tokenAuth": {"type": "http", "scheme": "bearer"},
-                },
-            },
-        },
-    )
+    api.init_app(app)
     # Wifi bands manager extension
     wifi_bands_manager_service.init_app(app=app)
     
 
-def register_blueprints(app: Flask):
+def register_apis(app: Flask):
     """Store App APIs blueprints."""
+    api = Api(app)
+    
     # Register REST blueprints
-    api.register_blueprint(wifi_controler_bp)
+    api.add_resource(WifiStatusApi, '/wifi/status')
+
+    # Initialize Flask-apispec
+    docs = FlaskApiSpec(app)
+    docs.register(WifiStatusApi, endpoint='wifistatusapi')  # Specify the endpoint name
