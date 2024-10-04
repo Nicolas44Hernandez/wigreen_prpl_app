@@ -6,7 +6,6 @@ from os import path
 import yaml
 from flask import Flask
 from flask_restful import Api
-from flask_apispec import FlaskApiSpec
 
 # Managers
 from server.managers.wifi_bands_manager import wifi_bands_manager_service
@@ -64,7 +63,3 @@ def register_apis(app: Flask):
     
     # Register REST blueprints
     api.add_resource(WifiStatusApi, '/wifi/status')
-
-    # Initialize Flask-apispec
-    docs = FlaskApiSpec(app)
-    docs.register(WifiStatusApi, endpoint='wifistatusapi')  # Specify the endpoint name
