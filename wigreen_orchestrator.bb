@@ -26,6 +26,7 @@ do_install () {
         install -d ${D}/usr/srv/server        
         install -m 0644 ${S}/server/app.py ${D}/usr/srv/server/ 
         install -m 0644 ${S}/server/__init__.py ${D}/usr/srv/server/ 
+        install -m 0644 ${S}/server/test_usp.py ${D}/usr/srv/server/ 
         
         # CONFIG
         install -d ${D}/usr/srv/server/config
