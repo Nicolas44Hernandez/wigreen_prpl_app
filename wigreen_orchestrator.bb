@@ -25,7 +25,6 @@ do_install () {
         # APP
         install -d ${D}/usr/srv/server        
         install -m 0644 ${S}/server/app.py ${D}/usr/srv/server/ 
-        install -m 0644 ${S}/server/extension.py ${D}/usr/srv/server/ 
         install -m 0644 ${S}/server/__init__.py ${D}/usr/srv/server/ 
         
         # CONFIG
