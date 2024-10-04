@@ -11,7 +11,7 @@ class AmxUspClient:
 
     def __init__(self):
         logger.info("initializing the AmxUspClient")
-        pamx.backend.load("/usr/bin/mods/amxb/mod-amxb-usp.so")
+        pamx.backend.load("/usr/bin/mods/usp/mod-amxb-usp.so")
         pamx.backend.set_config({})
         self.connection = pamx.bus.connect("usp:/var/run/usp/endpoint_agent_path")
 
