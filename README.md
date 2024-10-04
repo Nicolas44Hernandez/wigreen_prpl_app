@@ -33,9 +33,19 @@ Add the python3-amx recipe
 ```bash
 user@prplSDK sdkworkdir$ devtool modify python-amx
 ``` 
-Add the python3-falsk recipe
+Add the python3-flask recipe
 ```bash
-user@prplSDK sdkworkdir$ devtool modify python-flask
+user@prplSDK sdkworkdir$ devtool modify python3-flask
+``` 
+
+Add the python3-yamlloader recipe
+```bash
+user@prplSDK sdkworkdir$ devtool modify python3-yamlloader
+``` 
+
+Add the python3-flask-restful recipe
+```bash
+user@prplSDK sdkworkdir$ devtool modify python3-flask-restful
 ``` 
 
 Add the recipe
@@ -50,7 +60,7 @@ user@prplSDK sdkworkdir$ devool build wigreen
 
 Build image 
 ```bash
-user@prplSDK sdkworkdir$ devool build wigreen
+user@prplSDK sdkworkdir$ devool build-image
 ``` 
 
 ## Publish the image
