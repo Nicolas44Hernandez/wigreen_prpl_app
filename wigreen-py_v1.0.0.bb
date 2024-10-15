@@ -47,8 +47,8 @@ do_install () {
         # REST API
         install -d ${D}/usr/srv/server/rest_api
         install -m 0644 ${S}/server/rest_api/__init__.py ${D}/usr/srv/server/rest_api/
-        install -d ${D}/usr/srv/server/rest_api/wifi_controler
-        install -m 0644 ${S}/server/rest_api/wifi_controler/* ${D}/usr/srv/server/rest_api/wifi_controler/
+        install -d ${D}/usr/srv/server/rest_api/wifi_controller
+        install -m 0644 ${S}/server/rest_api/wifi_controller/* ${D}/usr/srv/server/rest_api/wifi_controller/
 
         # TEST
         install -d ${D}/usr/srv/tests
