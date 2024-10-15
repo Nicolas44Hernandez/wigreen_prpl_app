@@ -32,7 +32,17 @@
             "handlers": ["console"],
             "propagate": false
         },
+        "server.managers.mqtt_manager": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "propagate": false
+        },
         "server.interfaces.amx_usp_interface": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "propagate": false
+        },
+        "server.interfaces.mqtt_interface": {
             "level": "INFO",
             "handlers": ["console"],
             "propagate": false

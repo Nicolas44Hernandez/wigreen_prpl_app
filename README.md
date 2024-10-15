@@ -46,7 +46,7 @@ Connect to Prpl device
 
 If the prpl device is an RPI
 ```bash
-ubus-cli "SoftwareModules.InstallDU(URL = 'docker://<REGISTRY>/orchestrator', Username = <USER> , Password = <PASSWORD>, ExecutionEnvRef = 'generic', UUID = 'aade1eee-8ee1-5690-887f-b41aab7ca15e', HostObject = [{ 'Source'= '/var/run/usp/broker_agent_path', 'Destination'= '/run/imtp/broker_agent_path', Options = 'type=mount'}, { 'Source'= '/var/run/usp/broker_controller_path', 'Destination'= '/run/imtp/broker_controller_path', Options = 'type=mount'}], NetworkConfig = {"PortForwarding" = [{"Interface" = "Lan", "ExternalPort" = 8000, "InternalPort" = 6060, "Protocol" = "TCP"}]})"
+ubus-cli "SoftwareModules.InstallDU(URL = 'docker://<REGISTRY>/orchestrator', Username = <USER> , Password = <PASSWORD>, ExecutionEnvRef = 'generic', UUID = 'aade1eee-8ee1-5690-887f-b41aab7ca15e', HostObject = [{ 'Source'= '/var/run/usp/broker_agent_path', 'Destination'= '/run/imtp/broker_agent_path', Options = 'type=mount'}, { 'Source'= '/var/run/usp/broker_controller_path', 'Destination'= '/run/imtp/broker_controller_path', Options = 'type=mount'}], NetworkConfig = {"AccessInterfaces" = [{"Reference" = "Lan"}], "PortForwarding" = [{"Interface" = "Lan", "ExternalPort" = 8000, "InternalPort" = 6060, "Protocol" = "TCP"}]})"
 
 ``` 
 
@@ -54,7 +54,7 @@ If the prpl device is a LB6
 ```bash
 If the prpl device is an RPI
 ```bash
-ubus-cli "SoftwareModules.InstallDU(URL = 'docker://<REGISTRY>/orchestrator', Username = <USER> , Password = <PASSWORD>, ExecutionEnvRef = 'generic', UUID = 'aade1eee-8ee1-5690-887f-b41aab7ca15e', NetworkConfig = {"PortForwarding" = [{"Interface" = "Lan", "ExternalPort" = 8000, "InternalPort" = 6060, "Protocol" = "TCP"}]})"
+ubus-cli "SoftwareModules.InstallDU(URL = 'docker://<REGISTRY>/orchestrator', Username = <USER> , Password = <PASSWORD>, ExecutionEnvRef = 'generic', UUID = 'aade1eee-8ee1-5690-887f-b41aab7ca15e', NetworkConfig = {"AccessInterfaces" = [{"Reference" = "Lan"}], "PortForwarding" = [{"Interface" = "Lan", "ExternalPort" = 8000, "InternalPort" = 6060, "Protocol" = "TCP"}]})"
 
 ``` 
 
@@ -119,8 +119,14 @@ flask run --host '0.0.0.0' --port 6060
 
 ## Test the rest apis
 From a device connected to the lan 
+* Wifi status
 ```bash
-curl 192.168.102.1:8000/wifi/status
+curl 192.168.102.1:8000/api/wifi/status
+```
+
+* Send test message to broker mqtt
+```bash
+curl 192.168.102.1:8000/api/mqtt/msg
 ```
 
 # UNINSTALL 

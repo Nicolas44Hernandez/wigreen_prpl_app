@@ -5,6 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "MQTT Interface test: Run subscriber",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/files/tests/mqtt/interface/mqtt_subscriber_test.py",
+            "console": "integratedTerminal",
+        },
+        {
+            "name": "MQTT Interface test: Run publisher",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/files/tests/mqtt/interface/mqtt_publisher_test.py",
+            "console": "integratedTerminal",
+        },
+        {
             "name": "PRPL Orchestrator: Run flask app in dev post",
             "type": "python",
             "request": "launch",
