@@ -3,16 +3,13 @@
 import logging
 from logging.config import dictConfig
 from os import path
-import yaml
+import json
 from flask import Flask
-from flask_restful import Api
-
 # Managers
 from server.managers.wifi_bands_manager import wifi_bands_manager_service
 
 # Rest APIs
-api = Api()
-from server.rest_api.wifi_controler import WifiStatusApi
+from server.rest_api.wifi_controller import bp as wifi_controller_bp
 
 logger = logging.getLogger(__name__)
 
@@ -26,18 +23,21 @@ def create_app(
     app = Flask("Orange Orchestrator")
 
     # Get configuration files    
-    app_config = path.join(config_dir, "general-config.yml")
-    logging_config = path.join(config_dir, "logging-config.yml")
+    app_config = path.join(config_dir, "general-config.json")
+    logging_config = path.join(config_dir, "logging-config.json")
 
     logger.info("App config file: %s", app_config)
     logger.info("Logging config file: %s", logging_config)
 
-    # Load configuration
-    app.config.from_file(app_config, load=yaml.full_load)
+    # Load app configuration
+    with open(app_config) as config_file:
+        config = json.load(config_file)
+        app.config.update(config)
 
     # Load logging configuration and configure flask application logger
-    with open(logging_config) as stream:
-        dictConfig(yaml.full_load(stream))
+    with open(logging_config, 'r') as config_file:
+        config = json.load(config_file)
+        dictConfig(config)
 
     # Register extensions
     register_extensions(app)
@@ -51,15 +51,11 @@ def create_app(
 
 def register_extensions(app: Flask):
     """Initialize all extensions"""
-
-    api.init_app(app)
     # Wifi bands manager extension
     wifi_bands_manager_service.init_app(app=app)
     
 
 def register_apis(app: Flask):
     """Store App APIs blueprints."""
-    api = Api(app)
-    
     # Register REST blueprints
-    api.add_resource(WifiStatusApi, '/wifi/status')
+    app.register_blueprint(wifi_controller_bp, url_prefix='/api/wifi')

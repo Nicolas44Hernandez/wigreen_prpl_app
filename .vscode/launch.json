@@ -1,0 +1,25 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "PRPL Orchestrator: Run flask app in dev post",
+            "type": "python",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "files/server/app:create_app()",
+                "FLASK_ENV": "development",
+            },
+            "args": [
+                "run",
+                "--host",
+                "0.0.0.0",
+                "--port",
+                "5000",
+            ]
+        }
+    ]
+}

@@ -16,8 +16,6 @@ Add the dependencies recipes
 ```bash
 devtool modify python-amx
 devtool modify python3-flask
-devtool modify python3-yamlloader
-devtool modify python3-flask-restful
 ``` 
 
 Add the application recipe
