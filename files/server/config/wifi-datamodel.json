@@ -1,0 +1,14 @@
+{
+    "2.4GHz": {
+        "STATUS": "Device.WiFi.Radio.1.Status",
+        "ENABLE": "Device.WiFi.Radio.1.Enable"
+    },
+    "5GHz": {
+        "STATUS": "Device.WiFi.Radio.2.Status",
+        "ENABLE": "Device.WiFi.Radio.2.Enable"
+    },
+    "6GHz": {
+        "STATUS": "Device.WiFi.Radio.3.Status",
+        "ENABLE": "Device.WiFi.Radio.3.Enable"
+    }
+}

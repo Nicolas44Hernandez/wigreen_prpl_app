@@ -31,6 +31,12 @@ do_install () {
         ### CONFIG
         install -d ${D}/usr/srv/server/config
         install -m 0644 ${S}/server/config/* ${D}/usr/srv/server/config/
+        
+        ### COMMON
+        install -d ${D}/usr/srv/server/common
+        install -m 0644 ${S}/server/common/__init__.py ${D}/usr/srv/server/common/
+        install -d ${D}/usr/srv/server/common/exception
+        install -m 0644 ${S}/server/common/exception/* ${D}/usr/srv/server/common/exception/
 
         ### INTERFACES
         install -d ${D}/usr/srv/server/interfaces
