@@ -16,7 +16,8 @@ class ErrorCode(Enum):
         "Error in Datamodel configuration load, check file",
     )
     UNKNOWN_BAND_WIFI = (4, 400, "Wifi band doesnt exist") 
-    ERROR_IN_PARAMETER_IN_REQUEST = (5, 400, "Error in request parameters")    
+    ERROR_IN_REQUEST_ARGS = (5, 400, "Error in request parameters")   
+    UNKNOWN_WIFI_STATUS = (6, 400, "Wifi status doesnt exist") 
 
     # pylint: disable=unused-argument
     def __new__(cls, *args, **kwds):

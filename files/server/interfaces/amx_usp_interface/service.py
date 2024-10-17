@@ -39,7 +39,7 @@ class AmxUspClient:
         logger.info(f"AMX USP Set object: {path}  params: {params}")
         if flask_env == "PRODUCTION":
             try:
-                return self.connection.set(path, json.loads(params))
+                return self.connection.set(path, params)
             except Exception:
                 raise ServerBoxException(ErrorCode.USP_ERROR)
 
@@ -48,7 +48,7 @@ class AmxUspClient:
         logger.info(f"AMX USP Add object: {path}  params: {params}")
         if flask_env == "PRODUCTION":
             try:
-                return self.connection.add(path, json.loads(params))
+                return self.connection.add(path, params)
             except Exception:
                 raise ServerBoxException(ErrorCode.USP_ERROR)
 
