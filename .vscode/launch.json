@@ -6,26 +6,26 @@
     "configurations": [
         {
             "name": "MQTT Interface test: Run subscriber",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/files/tests/mqtt/interface/mqtt_subscriber_test.py",
             "console": "integratedTerminal",
         },
         {
             "name": "MQTT Interface test: Run publisher",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/files/tests/mqtt/interface/mqtt_publisher_test.py",
             "console": "integratedTerminal",
         },
         {
             "name": "PRPL Orchestrator: Run flask app in dev post",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "module": "flask",
             "env": {
                 "FLASK_APP": "files/server/app:create_app()",
-                "FLASK_ENV": "development",
+                "FLASK_ENV": "DEVELOPMENT",
             },
             "args": [
                 "run",

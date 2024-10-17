@@ -3,7 +3,7 @@
     "API_VERSION": "v1",
     "MQTT": {
         "BASIC": {
-            "MQTT_BROKER_ADDRESS": "192.168.102.11",
+            "MQTT_BROKER_ADDRESS": "localhost",
             "MQTT_USERNAME": "rpi_box",
             "MQTT_PASSWORD": "lamp",
             "MQTT_QOS": 1,
@@ -18,5 +18,5 @@
             "MQTT_WIFI_STATUS_RELAYS_TOPIC": "wifi/status/relays"
         }
     },   
-    "WIFI_DATAMODEL_CONFIG_FILE": "server/config/wifi-datamodel.json"     
+    "WIFI_DATAMODEL_CONFIG_FILE": "files/server/config/wifi-datamodel.json"     
 }

@@ -2,7 +2,7 @@
 
 import logging
 from logging.config import dictConfig
-from os import path
+import os
 import json
 from flask import Flask
 # Managers
@@ -13,23 +13,29 @@ from server.managers.mqtt_manager import mqtt_manager_service
 from server.rest_api.wifi_controller import bp as wifi_controller_bp
 from server.rest_api.mqtt_controller import bp as mqtt_controller_bp
 
+# Common
+from server.common import ServerBoxException, handle_server_box_exception
+
+
 logger = logging.getLogger(__name__)
 
 
 def create_app(
-    config_dir: str = path.join(path.dirname(path.abspath(__file__)), "config"),
+    config_dir: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config"),
 ):
     """Create the Flask app"""
 
     # Create app Flask
     app = Flask("Orange Orchestrator")
 
-    # Get configuration files    
-    app_config = path.join(config_dir, "general-config.json")
-    logging_config = path.join(config_dir, "logging-config.json")
-
-    logger.info("App config file: %s", app_config)
-    logger.info("Logging config file: %s", logging_config)
+    # Get server configuration files    
+    if os.getenv('FLASK_ENV') == "DEVELOPMENT":
+        app_config = os.path.join(config_dir, "general-config-development.json")
+    else: 
+        app_config = os.path.join(config_dir, "general-config.json")
+    
+    # Get logging configuration file
+    logging_config = os.path.join(config_dir, "logging-config.json")
 
     # Load app configuration
     with open(app_config) as config_file:
@@ -40,6 +46,9 @@ def create_app(
     with open(logging_config, 'r') as config_file:
         config = json.load(config_file)
         dictConfig(config)
+
+    logger.info("App config file: %s", app_config)
+    logger.info("Logging config file: %s", logging_config)
 
     # Register extensions
     register_extensions(app)
@@ -61,6 +70,8 @@ def register_extensions(app: Flask):
 
 def register_apis(app: Flask):
     """Store App APIs blueprints."""
+    # Register error handler
+    app.register_error_handler(ServerBoxException, handle_server_box_exception)
     # Register REST blueprints
     app.register_blueprint(wifi_controller_bp, url_prefix='/api/wifi')
     app.register_blueprint(mqtt_controller_bp, url_prefix='/api/mqtt')
