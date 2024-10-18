@@ -55,9 +55,12 @@ do_install () {
         # wifi_bands_manager
         install -d ${D}/usr/srv/server/managers/wifi_bands_manager
         install -m 0644 ${S}/server/managers/wifi_bands_manager/* ${D}/usr/srv/server/managers/wifi_bands_manager/
-        # wifi_bands_manager
+        # mqtt manager
         install -d ${D}/usr/srv/server/managers/mqtt_manager
         install -m 0644 ${S}/server/managers/mqtt_manager/* ${D}/usr/srv/server/managers/mqtt_manager/
+        # electrical panel manager
+        install -d ${D}/usr/srv/server/managers/electrical_panel_manager
+        install -m 0644 ${S}/server/managers/electrical_panel_manager/* ${D}/usr/srv/server/managers/electrical_panel_manager/
 
         ### REST API
         install -d ${D}/usr/srv/server/rest_api
@@ -68,6 +71,9 @@ do_install () {
         # mqtt_controller
         install -d ${D}/usr/srv/server/rest_api/mqtt_controller
         install -m 0644 ${S}/server/rest_api/mqtt_controller/* ${D}/usr/srv/server/rest_api/mqtt_controller/
+        # electrical_panel_controller
+        install -d ${D}/usr/srv/server/rest_api/electrical_panel_controller
+        install -m 0644 ${S}/server/rest_api/electrical_panel_controller/* ${D}/usr/srv/server/rest_api/electrical_panel_controller/
 
         ### TEST
         install -d ${D}/usr/srv/tests    

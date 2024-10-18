@@ -22,7 +22,17 @@
             "handlers": ["console"],
             "propagate": false
         },
-        "server.rest_api": {
+        "server.rest_api.wifi_controller": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "propagate": false
+        },
+        "server.rest_api.mqtt_controller": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "propagate": false
+        },
+        "server.rest_api.electrical_panel_controller": {
             "level": "INFO",
             "handlers": ["console"],
             "propagate": false
@@ -33,6 +43,11 @@
             "propagate": false
         },
         "server.managers.mqtt_manager": {
+            "level": "INFO",
+            "handlers": ["console"],
+            "propagate": false
+        },
+        "server.managers.electrical_panel_manager": {
             "level": "INFO",
             "handlers": ["console"],
             "propagate": false

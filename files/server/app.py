@@ -8,9 +8,11 @@ from flask import Flask
 # Managers
 from server.managers.wifi_bands_manager import wifi_bands_manager_service
 from server.managers.mqtt_manager import mqtt_manager_service
+from server.managers.electrical_panel_manager import electrical_panel_manager_service
 
 # Rest APIs
 from server.rest_api.wifi_controller import bp as wifi_controller_bp
+from server.rest_api.electrical_panel_controller import bp as electrical_panel_controller_bp
 from server.rest_api.mqtt_controller import bp as mqtt_controller_bp
 
 # Common
@@ -66,7 +68,9 @@ def register_extensions(app: Flask):
     mqtt_manager_service.init_app(app=app)
     # Wifi bands manager extension
     wifi_bands_manager_service.init_app(app=app)
-    
+    # Electrical panel manager extension
+    electrical_panel_manager_service.init_app(app=app)
+        
 
 def register_apis(app: Flask):
     """Store App APIs blueprints."""
@@ -74,4 +78,5 @@ def register_apis(app: Flask):
     app.register_error_handler(ServerBoxException, handle_server_box_exception)
     # Register REST blueprints
     app.register_blueprint(wifi_controller_bp, url_prefix='/api/wifi')
+    app.register_blueprint(electrical_panel_controller_bp, url_prefix='/api/electrical_panel')
     app.register_blueprint(mqtt_controller_bp, url_prefix='/api/mqtt')
