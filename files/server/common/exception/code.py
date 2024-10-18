@@ -18,6 +18,12 @@ class ErrorCode(Enum):
     UNKNOWN_BAND_WIFI = (4, 400, "Wifi band doesnt exist") 
     ERROR_IN_REQUEST_ARGS = (5, 400, "Error in request parameters")   
     UNKNOWN_WIFI_STATUS = (6, 400, "Wifi status doesnt exist") 
+    INVALID_RELAY_NUMBER = (7, 400, "Invalid relay number")
+    RELAYS_STATUS_NOT_RECEIVED = (
+        8,
+        400,
+        "The relays status have not been received yet",
+    )
 
     # pylint: disable=unused-argument
     def __new__(cls, *args, **kwds):
