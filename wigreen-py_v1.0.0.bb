@@ -1,6 +1,7 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 SRC_URI += "file://server"
 SRC_URI += "file://tests"
+SRC_URI += "file://start.sh"
 
 
 S = "${WORKDIR}"
@@ -74,8 +75,7 @@ do_install () {
         # usp tests
         install -d ${D}/usr/srv/tests/usp
         install -m 0644 ${S}/tests/usp/__init__.py ${D}/usr/srv/tests/usp/
-        install -m 0644 ${S}/tests/usp/test_usp.py ${D}/usr/srv/tests/usp/
-        install -m 0644 ${S}/tests/usp/test_usp_basic.py ${D}/usr/srv/tests/usp/  
+        install -m 0644 ${S}/tests/usp/* ${D}/usr/srv/tests/usp/
         # mqtt tests
         install -d ${D}/usr/srv/tests/mqtt  
         install -m 0644 ${S}/tests/mqtt/__init__.py ${D}/usr/srv/tests/mqtt/    
@@ -83,7 +83,14 @@ do_install () {
         install -m 0644 ${S}/tests/mqtt/basic/* ${D}/usr/srv/tests/mqtt/basic/
         install -d ${D}/usr/srv/tests/mqtt/interface  
         install -m 0644 ${S}/tests/mqtt/interface/* ${D}/usr/srv/tests/mqtt/interface/
+
 }
 
 FILES:${PN} += "/usr/srv/server/*"
 FILES:${PN} += "/usr/srv/tests/*"
+
+do_install:append () {
+        # Set variables and run script
+        install -d ${D}/usr/bin
+        install -D -p -m 0755 start.sh ${D}/usr/bin/
+}
