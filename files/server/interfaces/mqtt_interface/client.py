@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 from typing import Callable
 import time
 from socket import error as socket_error
@@ -7,6 +8,8 @@ import paho.mqtt.client as mqtt
 from .model import Msg, serialize, deserialize
 
 logger = logging.getLogger(__name__)
+
+MSG_PUBLISH_TIMEOUT_IN_SECS = 5
 
 
 class MQTTClient:
@@ -29,6 +32,7 @@ class MQTTClient:
         self.password = password
         self.subscriptions = subscriptions
         self.qos = qos
+        self.msg_ack = False
         self._callbacks = {}
         self.connected = False
         self.reconnection_timeout_in_secs = reconnection_timeout_in_secs
@@ -82,6 +86,7 @@ class MQTTClient:
             """Notify upon publishing message on queue"""
 
             logger.debug("Message puback received for message mid: %s", str(mid))
+            self.msg_ack = True
 
         self._client.on_connect = on_connect
         self._client.on_disconnect = on_disconnect
@@ -119,14 +124,16 @@ class MQTTClient:
         logger.info(f"Publish on topic {topic}  message: {str(message)}")
         message_publish_info = self._client.publish(topic, serialize(message), qos)
         logger.debug("trying to publish message mid: %s", str(message_publish_info.mid))
-        try:
-            message_publish_info.wait_for_publish()
-        except Exception as e:
-            logger.error(e)
-            logger.error(
-                f"Error when tryng to publish message mid: {message_publish_info.mid} launching"
-                " reconnection procedure"
-            )
+        
+        # set max msg wait for publish timmer
+        now = datetime.now()
+        msg_publish_timeout = now + timedelta(seconds=MSG_PUBLISH_TIMEOUT_IN_SECS)
+
+        # Waiting loop
+        while not self.msg_ack and now < msg_publish_timeout:
+            time.sleep(0.2)
+            now = datetime.now()
+        self.msg_ack = False
         if not message_publish_info._published:
             logger.error(f"The message mid: {message_publish_info.mid} could not be published")
             logger.error(f"Launching reconnection procedure")
