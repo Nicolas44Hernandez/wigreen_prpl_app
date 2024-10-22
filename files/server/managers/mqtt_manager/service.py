@@ -31,9 +31,15 @@ class MQTTManager:
             self.username = app.config["MQTT"]["BASIC"]["MQTT_USERNAME"]
             self.password = app.config["MQTT"]["BASIC"]["MQTT_PASSWORD"]
             self.qos = app.config["MQTT"]["BASIC"]["MQTT_QOS"]
-            self.reconnection_timeout_in_secs = app.config["MQTT"]["BASIC"]["MQTT_RECONNECTION_TIMEOUT_IN_SEG"]
-            self.max_reconnection_attemps = app.config["MQTT"]["BASIC"]["MQTT_MAX_RECONNECTION_ATTEMPS"]
-            self.publish_timeout_in_secs = app.config["MQTT"]["BASIC"]["MQTT_MSG_PUBLISH_TIMEOUT_IN_SECS"]
+            self.reconnection_timeout_in_secs = app.config["MQTT"]["BASIC"][
+                "MQTT_RECONNECTION_TIMEOUT_IN_SEG"
+            ]
+            self.max_reconnection_attemps = app.config["MQTT"]["BASIC"][
+                "MQTT_MAX_RECONNECTION_ATTEMPS"
+            ]
+            self.publish_timeout_in_secs = app.config["MQTT"]["BASIC"][
+                "MQTT_MSG_PUBLISH_TIMEOUT_IN_SECS"
+            ]
 
             # Connect to MQTT broker
             self.init_mqtt_service()

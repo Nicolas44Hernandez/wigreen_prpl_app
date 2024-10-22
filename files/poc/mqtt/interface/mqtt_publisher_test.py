@@ -2,14 +2,18 @@ import os, sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../.."))
 
-from server.interfaces.mqtt_interface import mqtt_client_interface, SingleRelayStatus, RelaysStatus
+from server.interfaces.mqtt_interface import (
+    mqtt_client_interface,
+    SingleRelayStatus,
+    RelaysStatus,
+)
 import time
 
 HOST = "localhost"
 CLIENT_NAME = "publisher_test"
 CLIENT_PASSWORD = "lamp"
 
-#TOPIC = "status/relays"
+# TOPIC = "status/relays"
 TOPIC = "command/relays"
 
 STATUS_ALL_OFF = [

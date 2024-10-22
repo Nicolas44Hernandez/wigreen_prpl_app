@@ -43,56 +43,55 @@ class MQTTClient:
         if password:
             self._client.username_pw_set(username=self.username, password=self.password)
 
-        def on_connect(client, userdata, flags, rc, qos=1):
-            """When cnnection is established"""
+        self._client.on_connect = self.on_connect
+        self._client.on_disconnect = self.on_disconnect
+        self._client.on_subscribe = self.on_subscribe
+        self._client.on_message = self.on_message
+        self._client.on_publish = self.on_publish
 
-            logger.info("MQTT Client connection established")
-            if len(self.subscriptions) > 0:
-                for topic, callback in self.subscriptions.items():
-                    self.subscribe(topic, callback, qos)
-                    logger.info(f"Subscribed to topic: {topic} qos: {qos}")
-            self.connected = True
+    def on_connect(self, client, userdata, flags, rc, qos=1):
+        """When cnnection is established"""
 
-        def on_disconnect(client, userdata, reasonCode):
-            """Stop reading and notify upon disconnecting"""
+        logger.info("MQTT Client connection established")
+        if len(self.subscriptions) > 0:
+            for topic, callback in self.subscriptions.items():
+                self.subscribe(topic, callback, qos)
+                logger.info(f"Subscribed to topic: {topic} qos: {qos}")
+        self.connected = True
 
-            logger.info("MQTT Client disconnected")
-            self.connected = False
-            self.loop_stop()
+    def on_disconnect(self, client, userdata, reasonCode):
+        """Stop reading and notify upon disconnecting"""
 
-        def on_subscribe(client, userdata, mid, granted_qos):
-            """Notify upon subscription"""
+        logger.info("MQTT Client disconnected")
+        self.connected = False
+        self.loop_stop()
 
-            logger.info("Subscription done garanted_qos: " + str(granted_qos))
+    def on_subscribe(self, client, userdata, mid, granted_qos):
+        """Notify upon subscription"""
 
-        def on_message(client, userdata, message):
-            """Notify upon message reception"""
+        logger.info("Subscription done garanted_qos: " + str(granted_qos))
 
-            logger.info(f"Message received on topic {message.topic}")
-            logger.debug(f"   mid : {message.mid}")
-            logger.debug(f"   duplicated : {message.dup}")
-            logger.debug(f"   qos : {message.qos}")
-            callback = self._callbacks[message.topic]
-            if callback:
-                try:
-                    msg = deserialize(message.payload)
-                    logger.info(f"Message : {str(msg)}")
-                    callback(msg)
-                except Exception:
-                    logger.error("Message processing failed")
-                    raise
+    def on_message(self, client, userdata, message):
+        """Notify upon message reception"""
 
-        def on_publish(client, userdata, mid):
-            """Notify upon publishing message on queue"""
+        logger.info(f"Message received on topic {message.topic}")
+        logger.debug(f"   mid : {message.mid}")
+        logger.debug(f"   duplicated : {message.dup}")
+        logger.debug(f"   qos : {message.qos}")
+        callback = self._callbacks[message.topic]
+        if callback:
+            try:
+                msg = deserialize(message.payload)
+                logger.info(f"Message : {str(msg)}")
+                callback(msg)
+            except Exception:
+                logger.error("Message processing failed")
 
-            logger.debug("Message puback received for message mid: %s", str(mid))
-            self.msg_ack = True
+    def on_publish(self, client, userdata, mid):
+        """Notify upon publishing message on queue"""
 
-        self._client.on_connect = on_connect
-        self._client.on_disconnect = on_disconnect
-        self._client.on_subscribe = on_subscribe
-        self._client.on_message = on_message
-        self._client.on_publish = on_publish
+        logger.debug("Message puback received for message mid: %s", str(mid))
+        self.msg_ack = True
 
     def connect(self, remaining_attempts: int) -> bool:
         """Connect to broker, retry if connection unsuccessful"""
@@ -124,7 +123,7 @@ class MQTTClient:
         logger.info(f"Publish on topic {topic}  message: {str(message)}")
         message_publish_info = self._client.publish(topic, serialize(message), qos)
         logger.debug("trying to publish message mid: %s", str(message_publish_info.mid))
-        
+
         # set max msg wait for publish timmer
         now = datetime.now()
         msg_publish_timeout = now + timedelta(seconds=MSG_PUBLISH_TIMEOUT_IN_SECS)

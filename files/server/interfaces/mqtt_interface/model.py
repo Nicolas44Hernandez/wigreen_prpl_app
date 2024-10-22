@@ -2,6 +2,7 @@
 MQTT messages model
 """
 
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Iterable, TypeVar
 import json
@@ -28,6 +29,7 @@ def deserialize(payload: bytes) -> Msg:
         return data
 
 
+@dataclass
 class SingleRelayStatus:
     def __init__(self, relay_number: int, status: bool, powered: bool):
         self.relay_number = relay_number
@@ -37,12 +39,20 @@ class SingleRelayStatus:
     def __str__(self):
         """String representation of the SingleRelayStatus instance"""
         return "{}".format(
-            {"relay_number": self.relay_number, "status": self.status, "powered": self.powered}
+            {
+                "relay_number": self.relay_number,
+                "status": self.status,
+                "powered": self.powered,
+            }
         )
 
     def to_json(self):
         """Return json dict that represents the SingleRelayStatus instance"""
-        return {"relay_number": self.relay_number, "status": self.status, "powered": self.powered}
+        return {
+            "relay_number": self.relay_number,
+            "status": self.status,
+            "powered": self.powered,
+        }
 
     def from_json(dictionary: dict):
         """Return SingleRelayStatus instance from json dict"""
@@ -53,9 +63,13 @@ class SingleRelayStatus:
         )
 
 
+@dataclass
 class RelaysStatus:
     def __init__(
-        self, relay_statuses: Iterable[SingleRelayStatus], command: bool, timestamp: datetime = None
+        self,
+        relay_statuses: Iterable[SingleRelayStatus],
+        command: bool,
+        timestamp: datetime = None,
     ):
         self.relay_statuses = relay_statuses
         self.command = command

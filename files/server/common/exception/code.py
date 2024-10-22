@@ -15,9 +15,9 @@ class ErrorCode(Enum):
         500,
         "Error in Datamodel configuration load, check file",
     )
-    UNKNOWN_BAND_WIFI = (4, 400, "Wifi band doesnt exist") 
-    ERROR_IN_REQUEST_ARGS = (5, 400, "Error in request parameters")   
-    UNKNOWN_WIFI_STATUS = (6, 400, "Wifi status doesnt exist") 
+    UNKNOWN_BAND_WIFI = (4, 400, "Wifi band doesnt exist")
+    ERROR_IN_REQUEST_ARGS = (5, 400, "Error in request parameters")
+    UNKNOWN_WIFI_STATUS = (6, 400, "Wifi status doesnt exist")
     INVALID_RELAY_NUMBER = (7, 400, "Invalid relay number")
     RELAYS_STATUS_NOT_RECEIVED = (
         8,
