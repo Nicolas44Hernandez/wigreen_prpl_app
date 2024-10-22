@@ -96,7 +96,11 @@ FILES:${PN} += "/usr/srv/server/*"
 FILES:${PN} += "/usr/srv/tests/*"
 
 do_install:append () {
-        # Set variables and run script
-        install -d ${D}/usr/bin
-        install -D -p -m 0755 start.sh ${D}/usr/bin/
+        # Service script
+        install -d ${D}/etc/init.d
+        install -D -p -m 0755 start.sh ${D}/etc/init.d/wigreen
 }
+
+inherit update-rc.d
+INITSCRIPT_NAME = "wigreen"
+INITSCRIPT_PARAMS = "start 99 2 3 4 5 . stop 10 0 1 6 ."
