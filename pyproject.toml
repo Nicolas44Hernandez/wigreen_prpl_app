@@ -15,6 +15,7 @@ werkzeug = "2.0.1"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
 black = "^24.10.0"
+pytest-cov = "^5.0.0"
 
 [build-system]
 requires = ["poetry-core"]
