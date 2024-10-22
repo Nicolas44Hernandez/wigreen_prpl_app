@@ -2,7 +2,8 @@ import pamx
 import json
 
 
-FIELD  = "Device.WiFi.Radio.1.Status"
+FIELD = "Device.WiFi.Radio.1.Status"
+
 
 class AmxUspClient:
     """Service class for AmxUsp interface"""
@@ -33,18 +34,14 @@ class AmxUspClient:
         """Delete USP Object"""
         print(f"AMX USP Delete object: {path}")
         return self.connection.delete(path)
-    
 
 
 if __name__ == "__main__":
 
-    # Create interface 
-    usp_client = AmxUspClient()  
+    # Create interface
+    usp_client = AmxUspClient()
 
-    # retreive field  
+    # retreive field
     data = usp_client.read_object(path=FIELD)
     print(f"FIELD: {FIELD}")
     print(f"DATA: {data}")
-
-    
-

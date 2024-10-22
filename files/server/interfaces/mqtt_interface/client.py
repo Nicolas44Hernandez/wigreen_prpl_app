@@ -124,7 +124,7 @@ class MQTTClient:
         logger.info(f"Publish on topic {topic}  message: {str(message)}")
         message_publish_info = self._client.publish(topic, serialize(message), qos)
         logger.debug("trying to publish message mid: %s", str(message_publish_info.mid))
-        
+
         # set max msg wait for publish timmer
         now = datetime.now()
         msg_publish_timeout = now + timedelta(seconds=MSG_PUBLISH_TIMEOUT_IN_SECS)
@@ -135,7 +135,9 @@ class MQTTClient:
             now = datetime.now()
         self.msg_ack = False
         if not message_publish_info._published:
-            logger.error(f"The message mid: {message_publish_info.mid} could not be published")
+            logger.error(
+                f"The message mid: {message_publish_info.mid} could not be published"
+            )
             logger.error(f"Launching reconnection procedure")
             if self.connect(self.max_reconnection_attemps):
                 logger.error(f"Succefully reconnected")
@@ -155,7 +157,9 @@ class MQTTClient:
             self.subscriptions[topic] = callback
             return True
         else:
-            logger.info(f"Impossible to subscribe to topic, MQTT interface not connected")
+            logger.info(
+                f"Impossible to subscribe to topic, MQTT interface not connected"
+            )
             if self.connect(self.max_reconnection_attemps):
                 logger.error(f"Succefully reconnected")
                 self._client.subscribe(topic, qos)

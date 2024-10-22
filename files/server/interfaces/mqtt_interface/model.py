@@ -37,12 +37,20 @@ class SingleRelayStatus:
     def __str__(self):
         """String representation of the SingleRelayStatus instance"""
         return "{}".format(
-            {"relay_number": self.relay_number, "status": self.status, "powered": self.powered}
+            {
+                "relay_number": self.relay_number,
+                "status": self.status,
+                "powered": self.powered,
+            }
         )
 
     def to_json(self):
         """Return json dict that represents the SingleRelayStatus instance"""
-        return {"relay_number": self.relay_number, "status": self.status, "powered": self.powered}
+        return {
+            "relay_number": self.relay_number,
+            "status": self.status,
+            "powered": self.powered,
+        }
 
     def from_json(dictionary: dict):
         """Return SingleRelayStatus instance from json dict"""
@@ -55,7 +63,10 @@ class SingleRelayStatus:
 
 class RelaysStatus:
     def __init__(
-        self, relay_statuses: Iterable[SingleRelayStatus], command: bool, timestamp: datetime = None
+        self,
+        relay_statuses: Iterable[SingleRelayStatus],
+        command: bool,
+        timestamp: datetime = None,
     ):
         self.relay_statuses = relay_statuses
         self.command = command
@@ -65,7 +76,9 @@ class RelaysStatus:
         """String representation of the RelaysStatus instance"""
         return "{}".format(
             {
-                "relay_statuses": [str(relay_status) for relay_status in self.relay_statuses],
+                "relay_statuses": [
+                    str(relay_status) for relay_status in self.relay_statuses
+                ],
                 "timestamp": self.timestamp.isoformat(),
                 "command": self.command,
             },
@@ -74,7 +87,9 @@ class RelaysStatus:
     def to_json(self):
         """Return json dict that represents the RelaysStatus instance"""
         return {
-            "relay_statuses": [relay_status.to_json() for relay_status in self.relay_statuses],
+            "relay_statuses": [
+                relay_status.to_json() for relay_status in self.relay_statuses
+            ],
             "timestamp": self.timestamp.isoformat(),
             "command": self.command,
         }

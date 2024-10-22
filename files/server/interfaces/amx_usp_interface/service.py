@@ -1,10 +1,11 @@
 """AMX USP interface package"""
+
 import logging
 import os
 import json
 from server.common import ServerBoxException, ErrorCode
 
-flask_env = os.getenv('FLASK_ENV')
+flask_env = os.getenv("FLASK_ENV")
 if flask_env == "PRODUCTION":
     import pamx
 
@@ -20,7 +21,9 @@ class AmxUspClient:
             try:
                 pamx.backend.load("/usr/bin/mods/usp/mod-amxb-usp.so")
                 pamx.backend.set_config({})
-                self.connection = pamx.bus.connect("usp:/var/run/usp/endpoint_agent_path")
+                self.connection = pamx.bus.connect(
+                    "usp:/var/run/usp/endpoint_agent_path"
+                )
             except Exception:
                 raise ServerBoxException(ErrorCode.USP_LOAD_ERROR)
 

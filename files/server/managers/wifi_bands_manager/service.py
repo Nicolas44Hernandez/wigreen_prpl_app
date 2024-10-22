@@ -14,6 +14,7 @@ BANDS = ["2.4GHz", "5GHz", "6GHz"]
 STATUSES = ["Up", "Down"]
 STATUS_CHANGE_TIMEOUT_IN_SECS = 15
 
+
 class WifiBandsManager:
     """Manager for wifi control"""
 
@@ -32,19 +33,19 @@ class WifiBandsManager:
             self.amx_usp_interface = AmxUspInterface()
             # Load datamodel
             self.load_datamodel(app.config["WIFI_DATAMODEL_CONFIG_FILE"])
-    
+
     def load_datamodel(self, datamodel_json_file: str):
         """Load the wifi datamodel dict from file"""
         logger.info("Livebox datamodel file: %s", datamodel_json_file)
         # Load configuration file
-        with open(datamodel_json_file, 'r') as config_file:
+        with open(datamodel_json_file, "r") as config_file:
             try:
                 self.datamodel = json.load(config_file)
             except Exception as exc:
                 raise ServerBoxException(ErrorCode.DATAMODEL_FILE_ERROR)
 
     def get_band_status(self, band: str):
-        """Execute get wifi band status command in the livebox using AMX USP """
+        """Execute get wifi band status command in the livebox using AMX USP"""
         # Check if band number exists
         if band not in BANDS:
             raise ServerBoxException(ErrorCode.UNKNOWN_BAND_WIFI)
@@ -54,11 +55,11 @@ class WifiBandsManager:
         logger.info(f"Value: {ret}")
         try:
             status = ret[0][list(ret[0].keys())[0]]["Status"]
-        except Exception as e: 
+        except Exception as e:
             logger.error(e)
             raise ServerBoxException(ErrorCode.UNEXPECTED_ERROR)
         logger.info(f"status: {status}")
-        return status    
+        return status
 
     def get_wifi_status(self):
         """Get WiFi status using AMX USP"""
@@ -66,14 +67,14 @@ class WifiBandsManager:
             band_status = self.get_band_status(band=band)
             if "Up" in band_status:
                 return "Up"
-        return "Down"   
+        return "Down"
 
     def set_band_status(self, band: str, new_status: str):
-        """Execute set wifi band status command in the livebox using AMX USP """
+        """Execute set wifi band status command in the livebox using AMX USP"""
         # Check if band number exists
         if band not in BANDS:
             raise ServerBoxException(ErrorCode.UNKNOWN_BAND_WIFI)
-        
+
         # Check if status exists
         if new_status not in STATUSES:
             raise ServerBoxException(ErrorCode.UNKNOWN_WIFI_STATUS)
@@ -109,18 +110,19 @@ class WifiBandsManager:
             now = datetime.now()
         logger.error(f"Wifi status change is taking too long, verify wifi status")
         return None
-    
+
     def set_wifi_status(self, new_status: str):
         """Set WiFi status using AMX USP"""
 
         # Check if status exists
         if new_status not in STATUSES:
             raise ServerBoxException(ErrorCode.UNKNOWN_WIFI_STATUS)
-        
+
         for band in BANDS:
             self.set_band_status(band=band, new_status=new_status)
 
         return new_status
+
 
 wifi_bands_manager_service: WifiBandsManager = WifiBandsManager()
 """ Wifi manager service singleton"""
