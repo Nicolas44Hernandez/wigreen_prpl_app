@@ -10,4 +10,15 @@
         "files/tests"
     ],
     "python.envFile": "${workspaceFolder}/.env",
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    },
+    "black-formatter.path": [
+        "black"
+    ],
+    "black-formatter.args": [
+        "--line-length",
+        "100",
+    ],
 }

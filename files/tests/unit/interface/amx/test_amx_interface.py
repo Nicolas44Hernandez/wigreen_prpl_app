@@ -5,7 +5,7 @@ import os
 def test_interface_dev():
     """Test for create interface in development environement"""
     # GIVEN
-    os.environ['FLASK_ENV'] = "DEVELOPMENT"
+    os.environ["FLASK_ENV"] = "DEVELOPMENT"
 
     # WHEN
     interface = AmxUspInterface()
