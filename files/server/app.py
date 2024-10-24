@@ -26,9 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def create_app(
-    config_dir: str = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), "config"
-    ),
+    config_dir: str = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config"),
 ):
     """Create the Flask app"""
 
@@ -83,7 +81,5 @@ def register_apis(app: Flask):
     app.register_error_handler(ServerBoxException, handle_server_box_exception)
     # Register REST blueprints
     app.register_blueprint(wifi_controller_bp, url_prefix="/api/wifi")
-    app.register_blueprint(
-        electrical_panel_controller_bp, url_prefix="/api/electrical_panel"
-    )
+    app.register_blueprint(electrical_panel_controller_bp, url_prefix="/api/electrical_panel")
     app.register_blueprint(mqtt_controller_bp, url_prefix="/api/mqtt")
