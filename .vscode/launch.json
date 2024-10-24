@@ -15,14 +15,14 @@
             "name": "MQTT Interface test: Run subscriber",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/files/tests/mqtt/interface/mqtt_subscriber_test.py",
+            "program": "${workspaceFolder}/files/poc/mqtt/interface/mqtt_subscriber_test.py",
             "console": "integratedTerminal",
         },
         {
             "name": "MQTT Interface test: Run publisher",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/files/tests/mqtt/interface/mqtt_publisher_test.py",
+            "program": "${workspaceFolder}/files/poc/mqtt/interface/mqtt_publisher_test.py",
             "console": "integratedTerminal",
         },
         {

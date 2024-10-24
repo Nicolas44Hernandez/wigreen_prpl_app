@@ -2,6 +2,7 @@
 MQTT messages model
 """
 
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Iterable, TypeVar
 import json
@@ -28,6 +29,7 @@ def deserialize(payload: bytes) -> Msg:
         return data
 
 
+@dataclass
 class SingleRelayStatus:
     def __init__(self, relay_number: int, status: bool, powered: bool):
         self.relay_number = relay_number
@@ -61,6 +63,7 @@ class SingleRelayStatus:
         )
 
 
+@dataclass
 class RelaysStatus:
     def __init__(
         self,
@@ -76,9 +79,7 @@ class RelaysStatus:
         """String representation of the RelaysStatus instance"""
         return "{}".format(
             {
-                "relay_statuses": [
-                    str(relay_status) for relay_status in self.relay_statuses
-                ],
+                "relay_statuses": [str(relay_status) for relay_status in self.relay_statuses],
                 "timestamp": self.timestamp.isoformat(),
                 "command": self.command,
             },
@@ -87,9 +88,7 @@ class RelaysStatus:
     def to_json(self):
         """Return json dict that represents the RelaysStatus instance"""
         return {
-            "relay_statuses": [
-                relay_status.to_json() for relay_status in self.relay_statuses
-            ],
+            "relay_statuses": [relay_status.to_json() for relay_status in self.relay_statuses],
             "timestamp": self.timestamp.isoformat(),
             "command": self.command,
         }

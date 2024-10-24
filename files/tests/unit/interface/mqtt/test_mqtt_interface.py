@@ -1,4 +1,3 @@
-import pytest
 from server.interfaces.mqtt_interface import mqtt_client_interface
 from unittest.mock import MagicMock
 from socket import error as socket_error
@@ -12,15 +11,6 @@ class MsgPiblishInfo:
         self.qos = qos
         self.topic = topic
         self.payload = payload
-
-
-@pytest.fixture
-def mqtt_client():
-    mqtt_client = mqtt_client_interface(
-        broker_address="test.broker", username="username", password="pwd"
-    )
-    mqtt_client._client = MagicMock()  # Mock the MQTT client
-    return mqtt_client
 
 
 def test_create_interface():
