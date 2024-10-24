@@ -38,11 +38,11 @@ class WifiBandsManager:
         """Load the wifi datamodel dict from file"""
         logger.info("Livebox datamodel file: %s", datamodel_json_file)
         # Load configuration file
-        with open(datamodel_json_file, "r") as config_file:
-            try:
+        try:
+            with open(datamodel_json_file, "r") as config_file:
                 self.datamodel = json.load(config_file)
-            except Exception as exc:
-                raise ServerBoxException(ErrorCode.DATAMODEL_FILE_ERROR)
+        except Exception as exc:
+            raise ServerBoxException(ErrorCode.DATAMODEL_FILE_ERROR)
 
     def get_band_status(self, band: str):
         """Execute get wifi band status command in the livebox using AMX USP"""
