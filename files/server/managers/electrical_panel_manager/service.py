@@ -24,8 +24,12 @@ class ElectricalPanelManager:
         if app is not None:
             logger.info("initializing the ElectricalPanelManager")
             # Initialize configuration
-            self.mqtt_command_relays_topic = app.config["MQTT"]["TOPICS"]["MQTT_COMMAND_RELAYS_TOPIC"]  
-            self.mqtt_relays_status_topic = app.config["MQTT"]["TOPICS"]["MQTT_RELAYS_STATUS_TOPIC"]
+            self.mqtt_command_relays_topic = app.config["MQTT"]["TOPICS"][
+                "MQTT_COMMAND_RELAYS_TOPIC"
+            ]
+            self.mqtt_relays_status_topic = app.config["MQTT"]["TOPICS"][
+                "MQTT_RELAYS_STATUS_TOPIC"
+            ]
             self.last_relays_status_received = None
 
             # Subscribe to relays command MQTT topic

@@ -1,10 +1,9 @@
 import pamx
 import json
-import time
 
-BASE_PATH = "Device.WiFi.Radio.1."
-FIELD_GET  = "Status"
-FIELD_SET  = "Enable"
+
+FIELD = "Device.WiFi.Radio.1.Status"
+
 
 class AmxUspClient:
     """Service class for AmxUsp interface"""
@@ -24,7 +23,7 @@ class AmxUspClient:
     def set_object(self, path: str, params: dict):
         """Set USP Object"""
         print(f"AMX USP Set object: {path}  params: {params}")
-        return self.connection.set(path, params)
+        return self.connection.set(path, json.loads(params))
 
     def add_object(self, path, params: dict):
         """Add USP Object"""
@@ -35,24 +34,14 @@ class AmxUspClient:
         """Delete USP Object"""
         print(f"AMX USP Delete object: {path}")
         return self.connection.delete(path)
-    
 
 
 if __name__ == "__main__":
-    new_status = "0"
-    # Create interface 
-    usp_client = AmxUspClient()  
-    print(f"FIELD: {BASE_PATH}")
-    for i in range(5):
-        print(f"----------------------Iteration {i}---------------------")
-        # Read field          
-        data = usp_client.read_object(path=f"{BASE_PATH}{FIELD_GET}")
-        print(f"DATA READ: {data}")  
-        current_status = data[0][list(data[0].keys())[0]]["Status"]
-        new_status = "0" if "Up" in current_status else "1"      
-        ret = usp_client.set_object(path=BASE_PATH, params={FIELD_SET: new_status})
-        print(f"ret: {ret}   - type(ret): {type(ret)}")
-        time.sleep(10)
 
-    
+    # Create interface
+    usp_client = AmxUspClient()
 
+    # retreive field
+    data = usp_client.read_object(path=FIELD)
+    print(f"FIELD: {FIELD}")
+    print(f"DATA: {data}")

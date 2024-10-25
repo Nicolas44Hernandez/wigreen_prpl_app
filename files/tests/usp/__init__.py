@@ -1,1 +1,0 @@
-"""Test usp package"""

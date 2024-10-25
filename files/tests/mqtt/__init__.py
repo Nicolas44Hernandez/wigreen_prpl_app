@@ -1,1 +1,0 @@
-"""MQTT test package"""
