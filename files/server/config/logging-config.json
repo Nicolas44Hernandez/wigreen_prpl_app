@@ -14,52 +14,86 @@
     },
     "root": {
         "level": "DEBUG",
-        "handlers": ["console"]       
+        "handlers": [
+            "console"
+        ]
     },
     "loggers": {
         "server.app": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": [
+                "console"
+            ],
+            "propagate": false
+        },
+        "server.orchestrator.notification": {
+            "level": "INFO",
+            "handlers": [
+                "console"
+            ],
+            "propagate": false
+        },
+        "server.orchestrator.polling": {
+            "level": "INFO",
+            "handlers": [
+                "console"
+            ],
             "propagate": false
         },
         "server.rest_api.wifi_controller": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": [
+                "console"
+            ],
             "propagate": false
         },
         "server.rest_api.mqtt_controller": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": [
+                "console"
+            ],
             "propagate": false
         },
         "server.rest_api.electrical_panel_controller": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": [
+                "console"
+            ],
             "propagate": false
         },
         "server.managers.wifi_bands_manager": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": [
+                "console"
+            ],
             "propagate": false
         },
         "server.managers.mqtt_manager": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": [
+                "console"
+            ],
             "propagate": false
         },
         "server.managers.electrical_panel_manager": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": [
+                "console"
+            ],
             "propagate": false
         },
         "server.interfaces.amx_usp_interface": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": [
+                "console"
+            ],
             "propagate": false
         },
         "server.interfaces.mqtt_interface": {
             "level": "INFO",
-            "handlers": ["console"],
+            "handlers": [
+                "console"
+            ],
             "propagate": false
         }
     }

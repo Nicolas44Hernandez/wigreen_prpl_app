@@ -3,10 +3,13 @@
 import logging
 import json
 import time
+import ssl
+import http.client as httplib
 from datetime import datetime, timedelta
 from flask import Flask
 from server.interfaces.amx_usp_interface import AmxUspInterface
 from server.common import ServerBoxException, ErrorCode
+from .model import WifiBandStatus, WifiStatus
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +23,7 @@ class WifiBandsManager:
 
     amx_usp_interface: AmxUspInterface
     datamodel: dict
+    wifi_status: WifiStatus = None
 
     def __init__(self, app: Flask = None) -> None:
         if app is not None:
@@ -122,6 +126,41 @@ class WifiBandsManager:
             self.set_band_status(band=band, new_status=new_status)
 
         return new_status
+
+    def update_wifi_status_attribute(self) -> WifiStatus:
+        """Retrieve wifi status and update wifi_status attribute"""
+        status = self.get_wifi_status()
+        if status is None:
+            return None
+        bands_status = []
+
+        for band in BANDS:
+            band_status = WifiBandStatus(
+                band=band, status=wifi_bands_manager_service.get_band_status(band=band)
+            )
+            if band_status is None:
+                return None
+            bands_status.append(band_status)
+
+        self.wifi_status = WifiStatus(status=status, bands_status=bands_status)
+        return self.wifi_status
+
+    def get_current_wifi_status(self) -> WifiStatus:
+        """Retrieve current WiFi status"""
+        return self.wifi_status
+
+    def is_connected_to_internet(self) -> bool:
+        """Check internet connection"""
+        context = ssl._create_unverified_context()
+        conn = httplib.HTTPSConnection("google.com", timeout=5, context=context)
+        try:
+            conn.request("HEAD", "/")
+            return True
+        except Exception as e:
+            logger.error(e)
+            return False
+        finally:
+            conn.close()
 
 
 wifi_bands_manager_service: WifiBandsManager = WifiBandsManager()
