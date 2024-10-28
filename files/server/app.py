@@ -21,6 +21,9 @@ from server.rest_api.mqtt_controller import bp as mqtt_controller_bp
 # Common
 from server.common import ServerBoxException, handle_server_box_exception
 
+# Orchestrator
+from server.orchestrator import orchestrator_service
+
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +60,8 @@ def create_app(
 
     # Register extensions
     register_extensions(app)
+    # register orchestrator
+    register_orchestrator(app)
     # Register REST APIs
     register_apis(app)
 
@@ -73,6 +78,11 @@ def register_extensions(app: Flask):
     wifi_bands_manager_service.init_app(app=app)
     # Electrical panel manager extension
     electrical_panel_manager_service.init_app(app=app)
+
+
+def register_orchestrator(app: Flask):
+    """Initialize Orchestrator"""
+    orchestrator_service.init_app(app=app)
 
 
 def register_apis(app: Flask):

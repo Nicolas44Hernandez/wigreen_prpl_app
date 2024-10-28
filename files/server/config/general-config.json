@@ -17,6 +17,19 @@
             "MQTT_RELAYS_STATUS_TOPIC": "status/relays",
             "MQTT_WIFI_STATUS_RELAYS_TOPIC": "wifi/status/relays"
         }
-    },   
-    "WIFI_DATAMODEL_CONFIG_FILE": "server/config/wifi-datamodel.json"     
+    },
+    "WIFI_DATAMODEL_CONFIG_FILE": "server/config/wifi-datamodel.json",
+    "CLOUD": {
+        "SERVER_IP": "192.168.102.12",
+        "PORT": 3000,
+        "PATHS": {
+            "NOTIFY_STATUS": "/status"
+        }
+    },
+    "POLLING": {
+        "WIFI_STATUS_SECS": 15
+    },
+    "NOTIFICATION": {
+        "CLOUD_SECS": 10
+    }
 }
