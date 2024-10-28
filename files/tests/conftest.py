@@ -3,6 +3,7 @@ from datetime import datetime
 from unittest.mock import patch
 from unittest.mock import MagicMock
 from server.interfaces.mqtt_interface import mqtt_client_interface, SingleRelayStatus, RelaysStatus
+from server.managers.wifi_bands_manager.model import WifiBandStatus, WifiStatus
 
 
 @pytest.fixture
@@ -18,6 +19,30 @@ def mqtt_client():
     )
     mqtt_client._client = MagicMock()  # Mock the MQTT client
     return mqtt_client
+
+
+@pytest.fixture
+def wifi_status_on():
+    return WifiStatus(
+        status=True,
+        bands_status=[
+            WifiBandStatus(band="2.4GHz", status=True),
+            WifiBandStatus(band="5GHz", status=True),
+            WifiBandStatus(band="6GHz", status=True),
+        ],
+    )
+
+
+@pytest.fixture
+def wifi_status_off():
+    return WifiStatus(
+        status=True,
+        bands_status=[
+            WifiBandStatus(band="2.4GHz", status=False),
+            WifiBandStatus(band="5GHz", status=False),
+            WifiBandStatus(band="6GHz", status=False),
+        ],
+    )
 
 
 @pytest.fixture

@@ -138,7 +138,7 @@ class WifiBandsManager:
             band_status = WifiBandStatus(
                 band=band, status=wifi_bands_manager_service.get_band_status(band=band)
             )
-            if band_status is None:
+            if band_status.status is None:
                 return None
             bands_status.append(band_status)
 
