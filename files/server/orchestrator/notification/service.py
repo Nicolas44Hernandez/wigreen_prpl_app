@@ -4,11 +4,13 @@ import http.client
 import urllib.parse
 import time
 import threading
+from datetime import datetime
 from typing import Iterable
-from server.managers.wifi_bands_manager import wifi_bands_manager_service
+from server.managers.wifi_bands_manager import wifi_bands_manager_service, BANDS
 from server.managers.electrical_panel_manager import electrical_panel_manager_service
 from server.managers.wifi_bands_manager.model import WifiBandStatus
-from server.interfaces.mqtt_interface import RelaysStatus
+from server.managers.mqtt_manager import mqtt_manager_service
+from server.interfaces.mqtt_interface import RelaysStatus, SingleRelayStatus
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +51,35 @@ class CloudServerNotifier:
         self.thread.join()
 
 
+class MqttWifiStatusNotifier:
+    def __init__(self, mqtt_notification_period_in_secs):
+        self.period = mqtt_notification_period_in_secs
+        self._stop_event = threading.Event()
+
+    def publish_mqtt_notification(self):
+        while not self._stop_event.is_set():
+            # Retreiving values
+            wifi_status = wifi_bands_manager_service.get_current_wifi_status()
+            if wifi_status is not None:
+                # Publish MQTT notification
+                logger.info("Publish wifi status notification to MQTT ...")
+                logger.debug(f"Wifi status: {wifi_status}")
+                orchestrator_notification_service.notify_wifi_status_mqtt(
+                    bands_status=wifi_status.bands_status
+                )
+            time.sleep(self.period)
+
+    def start(self):
+        self.thread = threading.Thread(
+            target=self.publish_mqtt_notification, name="OrchestratorMqttWiFiStatusNotifier"
+        )
+        self.thread.start()
+
+    def stop(self):
+        self._stop_event.set()
+        self.thread.join()
+
+
 class OrchestratorNotification:
     """OrchestratorNotification service"""
 
@@ -63,6 +94,8 @@ class OrchestratorNotification:
         server_cloud_notify_status_path: str,
         server_cloud_port: int,
         cloud_notification_period_in_secs: int,
+        mqtt_wifi_status_relays_topic: str,
+        mqtt_wifi_status_notification_period_in_secs: int,
     ):
         """Initialize the polling service for the orchestrator"""
         logger.info("initializing Orchestrator polling module")
@@ -71,6 +104,10 @@ class OrchestratorNotification:
         self.server_cloud_notify_status_path = server_cloud_notify_status_path
         self.server_cloud_port = server_cloud_port
         self.cloud_notification_period_in_secs = cloud_notification_period_in_secs
+        self.mqtt_wifi_status_relays_topic = mqtt_wifi_status_relays_topic
+        self.mqtt_wifi_status_notification_period_in_secs = (
+            mqtt_wifi_status_notification_period_in_secs
+        )
 
         # Schedule notifications
         self.schedule_notifications()
@@ -82,8 +119,12 @@ class OrchestratorNotification:
         cloud_notifier = CloudServerNotifier(
             cloud_notification_period_in_secs=self.cloud_notification_period_in_secs
         )
+        mqtt_wifi_status_notifier = MqttWifiStatusNotifier(
+            mqtt_notification_period_in_secs=self.mqtt_wifi_status_notification_period_in_secs
+        )
         # Start notifiers
         cloud_notifier.start()
+        mqtt_wifi_status_notifier.start()
 
     def notify_cloud_server(
         self,
@@ -220,6 +261,41 @@ class OrchestratorNotification:
             name="NotificationHttpPost",
         )
         post_thread.start()
+
+    def notify_wifi_status_mqtt(self, bands_status: Iterable[WifiBandStatus]):
+        """Send MQTT command to electrical pannel to represent the wifi bands status"""
+
+        logger.info("Sending MQTT message to notify wifi status")
+
+        # Build relays command
+        relays_statuses_in_command = []
+        for i in range(6):
+            relays_statuses_in_command.append(
+                SingleRelayStatus(relay_number=i, status=False, powered=False)
+            )
+
+        for i, band in enumerate(BANDS):
+            for band_status in bands_status:
+                if band_status.band == band:
+                    relays_statuses_in_command[i].status = band_status.status
+                    relays_statuses_in_command[i].powered = band_status.status
+                    break
+
+        relays_statuses = RelaysStatus(
+            relay_statuses=relays_statuses_in_command,
+            command=True,
+            timestamp=datetime.now(),
+        )
+
+        # Call MQTT manager service to publish relays status command
+        try:
+            mqtt_manager_service.publish_message(
+                topic=self.mqtt_wifi_status_relays_topic, message=relays_statuses
+            )
+
+        except Exception as e:
+            logger.error("Error publishing wifi status")
+            logger.error(e)
 
 
 orchestrator_notification_service: OrchestratorNotification = OrchestratorNotification()

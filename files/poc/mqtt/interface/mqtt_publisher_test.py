@@ -13,8 +13,8 @@ HOST = "localhost"
 CLIENT_NAME = "publisher_test"
 CLIENT_PASSWORD = "lamp"
 
-# TOPIC = "status/relays"
-TOPIC = "command/relays"
+TOPIC = "status/relays"
+# TOPIC = "command/relays"
 
 STATUS_ALL_OFF = [
     SingleRelayStatus(relay_number=0, status=False, powered=False),
