@@ -4,6 +4,7 @@ from flask import Flask
 from unittest.mock import call
 from server.interfaces.amx_usp_interface import AmxUspInterface
 from server.managers.wifi_bands_manager.service import WifiBandsManager, BANDS, STATUSES
+from server.managers.wifi_bands_manager.model import WifiStatus
 from server.common import ServerBoxException, ErrorCode
 from pytest_mock import MockerFixture
 from unittest.mock import MagicMock, patch, mock_open
@@ -259,7 +260,6 @@ def test_set_wifi_status_success(wifi_bands_manager):
         assert result == "Up"
 
 
-# Test function for unknown status
 def test_set_wifi_status_unknown_status(wifi_bands_manager):
     # GIVEN
     with pytest.raises(ServerBoxException) as exc_info:
@@ -269,3 +269,98 @@ def test_set_wifi_status_unknown_status(wifi_bands_manager):
     assert exc_info.value.code == ErrorCode.UNKNOWN_WIFI_STATUS.value
     assert exc_info.value.http_code == ErrorCode.UNKNOWN_WIFI_STATUS.http_code
     assert exc_info.value.message == ErrorCode.UNKNOWN_WIFI_STATUS.message
+
+
+def test_update_wifi_status_attribute_success(wifi_bands_manager):
+    # GIVEN
+    with patch(
+        "server.managers.wifi_bands_manager.service.wifi_bands_manager_service"
+    ) as mock_service:
+        mock_service.get_band_status.side_effect = ["Up"] * len(BANDS)  # Mock for all bands
+        wifi_bands_manager.get_wifi_status = MagicMock(return_value="Up")
+
+        # WHEN
+        res = wifi_bands_manager.update_wifi_status_attribute()
+
+        # ASSERT
+        # assert response
+        assert res.status == "Up"
+        assert len(res.bands_status) == len(BANDS)
+        for band_status in res.bands_status:
+            assert band_status.status == "Up"
+        # assert attribute
+        assert wifi_bands_manager.wifi_status.status == "Up"
+        for band_status in wifi_bands_manager.wifi_status.bands_status:
+            assert band_status.status == "Up"
+
+
+def test_update_wifi_status_attribute_no_wifi_status(wifi_bands_manager):
+    # GIVEN
+    with patch("server.managers.wifi_bands_manager.service.wifi_bands_manager_service"):
+        wifi_bands_manager.get_wifi_status = MagicMock(return_value=None)
+
+        # WHEN
+        result = wifi_bands_manager.update_wifi_status_attribute()
+
+        # THEN
+        assert result is None
+        assert wifi_bands_manager.wifi_status is None
+
+
+def test_update_wifi_status_attribute_band_status_none(wifi_bands_manager):
+    # GIVEN
+    with patch(
+        "server.managers.wifi_bands_manager.service.wifi_bands_manager_service"
+    ) as mock_service:
+        mock_service.get_band_status.side_effect = [None]  # Simulate None for the first band
+        wifi_bands_manager.get_wifi_status = MagicMock(return_value="Up")
+
+        # WHEN
+        result = wifi_bands_manager.update_wifi_status_attribute()
+
+        # Assert
+        assert result is None
+        assert wifi_bands_manager.wifi_status is None
+
+
+def test_get_current_wifi_status(wifi_bands_manager):
+    # GIVEN
+    expected_status = WifiStatus(status="Up", bands_status=[])
+    wifi_bands_manager.wifi_status = expected_status
+
+    # WHEN
+    result = wifi_bands_manager.get_current_wifi_status()
+
+    # THEN
+    assert result == expected_status
+
+
+def test_is_connected_to_internet_success(wifi_bands_manager):
+    # GIVEN
+    with patch("server.managers.wifi_bands_manager.service.httplib.HTTPSConnection") as mock_https:
+        mock_connection = MagicMock()
+        mock_https.return_value = mock_connection
+
+        # WHEN
+        result = wifi_bands_manager.is_connected_to_internet()
+
+        # THEN
+        assert result is True
+        mock_connection.request.assert_called_once_with("HEAD", "/")
+        mock_connection.close.assert_called_once()
+
+
+def test_is_connected_to_internet_failure(wifi_bands_manager):
+    # GIVEN
+    with patch("server.managers.wifi_bands_manager.service.httplib.HTTPSConnection") as mock_https:
+        mock_connection = MagicMock()
+        mock_https.return_value = mock_connection
+        mock_connection.request.side_effect = Exception("Connection failed")
+
+        # WHEN
+        result = wifi_bands_manager.is_connected_to_internet()
+
+        # THEN
+        assert result is False
+        mock_connection.request.assert_called_once_with("HEAD", "/")
+        mock_connection.close.assert_called_once()

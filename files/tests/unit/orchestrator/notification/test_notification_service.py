@@ -1,0 +1,312 @@
+import pytest
+from unittest.mock import patch, MagicMock
+from server.orchestrator.notification.service import CloudServerNotifier, OrchestratorNotification
+from server.managers.wifi_bands_manager.model import WifiBandStatus
+from server.orchestrator.notification.service import POST_TIMEOUT_IN_SECS
+
+
+@pytest.fixture
+def mock_services():
+    """Fixture to mock external services."""
+    with patch(
+        "server.orchestrator.notification.service.wifi_bands_manager_service"
+    ) as mock_wifi_service, patch(
+        "server.orchestrator.notification.service.electrical_panel_manager_service"
+    ) as mock_electrical_service, patch(
+        "server.orchestrator.notification.service.orchestrator_notification_service"
+    ) as mock_notification_service:
+        yield mock_wifi_service, mock_electrical_service, mock_notification_service
+
+
+@pytest.fixture
+def mock_http():
+    """Fixture to mock http service"""
+    with patch("server.orchestrator.notification.service.http.client.HTTPConnection") as mock_http:
+        yield mock_http
+
+
+@pytest.fixture
+def mock_threading():
+    """Fixture to mock threading service"""
+    with patch("server.orchestrator.notification.service.threading") as mock_threading:
+        yield mock_threading
+
+
+@pytest.fixture
+def mock_socket():
+    """Fixture to mock socket service"""
+    with patch("server.orchestrator.notification.service.socket.socket") as mock_socket:
+        yield mock_socket
+
+
+@pytest.fixture
+def cloud_server_notifier():
+    """Create an instance of CloudServerNotifier for testing."""
+    return CloudServerNotifier(cloud_notification_period_in_secs=1)
+
+
+@pytest.fixture
+def orchestrator_notifier():
+    """Create an instance of OrchestratorNotification for testing."""
+    return OrchestratorNotification()
+
+
+def test_cloud_notifier_start_and_stop(cloud_server_notifier, mock_threading):
+    # WHEN
+    cloud_server_notifier.start()
+
+    # THEN
+    mock_threading.Thread.assert_called_once()
+    assert cloud_server_notifier.thread is not None
+
+    # WHEN
+    cloud_server_notifier.stop()
+
+    # THEN
+    assert cloud_server_notifier._stop_event.is_set()
+    mock_threading.Thread().join.assert_called_once()
+
+
+def test_post_cloud_notification_success(
+    cloud_server_notifier,
+    mock_services,
+    relays_status_off,
+    wifi_status_off,
+    mock_sleep,
+):
+    # GIVEN
+    mock_wifi_service, mock_electrical_service, mock_notification_service = mock_services
+    mock_wifi_service.get_current_wifi_status.return_value = wifi_status_off
+    mock_electrical_service.get_relays_last_received_status.return_value = relays_status_off
+    cloud_server_notifier._stop_event = MagicMock()
+    cloud_server_notifier._stop_event.is_set.side_effect = [False, True]
+
+    # WHEN
+    cloud_server_notifier.post_cloud_notification()
+
+    # THEN
+    mock_wifi_service.update_wifi_status_attribute.assert_called_once()
+    mock_notification_service.notify_cloud_server.assert_called_once_with(
+        bands_status=wifi_status_off.bands_status,
+        use_situation="TODO",
+        relay_statuses=relays_status_off,
+    )
+    assert cloud_server_notifier._stop_event.is_set.call_count == 2
+
+
+def test_post_cloud_notification_with_exception(
+    cloud_server_notifier,
+    mock_services,
+    wifi_status_off,
+    mock_sleep,
+):
+    # GIVEN
+    mock_wifi_service, mock_electrical_service, mock_notification_service = mock_services
+    mock_wifi_service.get_current_wifi_status.return_value = wifi_status_off
+    mock_electrical_service.get_relays_last_received_status.side_effect = Exception("Error")
+    cloud_server_notifier._stop_event = MagicMock()
+    cloud_server_notifier._stop_event.is_set.side_effect = [False, True]
+
+    # WHEN
+    cloud_server_notifier.post_cloud_notification()
+
+    # THEN
+    mock_wifi_service.update_wifi_status_attribute.assert_called_once()
+    mock_notification_service.notify_cloud_server.assert_called_once_with(
+        bands_status=wifi_status_off.bands_status,
+        use_situation="TODO",
+        relay_statuses=None,
+    )
+    assert cloud_server_notifier._stop_event.is_set.call_count == 2
+
+
+def test_orchestrator_notification_init():
+    # GIVEN
+    orchestrator = OrchestratorNotification()
+
+    # WHEN
+    orchestrator.init_notification_module(
+        rpi_cloud_ip_addr="127.0.0.1",
+        server_cloud_notify_status_path="/notify",
+        server_cloud_port=5000,
+        cloud_notification_period_in_secs=10,
+    )
+
+    # THEN
+    assert orchestrator.rpi_cloud_ip_addr == "127.0.0.1"
+    assert orchestrator.server_cloud_notify_status_path == "/notify"
+    assert orchestrator.server_cloud_port == 5000
+    assert orchestrator.cloud_notification_period_in_secs == 10
+
+
+def test_notify_cloud_server_success(orchestrator_notifier, relays_status_off, mock_socket):
+    # GIVEN
+    bands_status = [
+        WifiBandStatus(band="2.4GHz", status="Up"),
+        WifiBandStatus(band="5GHz", status="Down"),
+        WifiBandStatus(band="6GHz", status="Up"),
+    ]
+
+    orchestrator_notifier.rpi_cloud_ip_addr = "127.0.0.1"
+    orchestrator_notifier.server_cloud_port = 5000
+    orchestrator_notifier.server_cloud_notify_status_path = "/notify"
+    orchestrator_notifier.http_post_in_dedicated_thread = MagicMock()
+    mock_socket.return_value.getsockname.return_value = ("192.168.1.100", 0)
+
+    # WHEN
+    orchestrator_notifier.notify_cloud_server(bands_status, "Test Situation", relays_status_off)
+
+    # THEN
+    orchestrator_notifier.http_post_in_dedicated_thread.assert_called_once()
+    data = orchestrator_notifier.http_post_in_dedicated_thread.call_args.kwargs["data"]
+    assert data["orquestrator_base_url"] == "http://192.168.1.100:5000/"
+    assert data["wifi_status"] is True
+    assert data["band_2GHz_status"] is True
+    assert data["band_5GHz_status"] is False
+    assert data["band_6GHz_status"] is True
+    assert data["po0_status"] is False
+    assert data["po1_status"] is False
+    assert data["po2_status"] is False
+
+
+def test_notify_cloud_server_no_bands(orchestrator_notifier, relays_status_off, mock_socket):
+    # GIVEN
+    bands_status = []
+    orchestrator_notifier.rpi_cloud_ip_addr = "127.0.0.1"
+    orchestrator_notifier.server_cloud_port = 5000
+    orchestrator_notifier.server_cloud_notify_status_path = "/notify"
+    orchestrator_notifier.http_post_in_dedicated_thread = MagicMock()
+    mock_socket.return_value.getsockname.return_value = ("192.168.1.100", 0)
+
+    # WHEN
+    orchestrator_notifier.notify_cloud_server(bands_status, "Test Situation", relays_status_off)
+
+    # THEN
+    orchestrator_notifier.http_post_in_dedicated_thread.assert_called_once()
+    data = orchestrator_notifier.http_post_in_dedicated_thread.call_args.kwargs["data"]
+    assert data["wifi_status"] is False
+    assert data["band_2GHz_status"] is False
+    assert data["band_5GHz_status"] is False
+    assert data["band_6GHz_status"] is False
+    assert data["po0_status"] is False
+    assert data["po1_status"] is False
+    assert data["po2_status"] is False
+
+
+def test_notify_cloud_server_error_handling(orchestrator_notifier, relays_status_off, mock_socket):
+    # GIVEN
+    bands_status = [
+        WifiBandStatus(band="2.4GHz", status="Up"),
+        WifiBandStatus(band="5GHz", status="Down"),
+        WifiBandStatus(band="6GHz", status="Up"),
+    ]
+    orchestrator_notifier.rpi_cloud_ip_addr = "127.0.0.1"
+    orchestrator_notifier.server_cloud_port = 5000
+    orchestrator_notifier.server_cloud_notify_status_path = "/notify"
+    orchestrator_notifier.http_post_in_dedicated_thread = MagicMock()
+    mock_socket.side_effect = Exception("Socket error")
+
+    # WHEN
+    orchestrator_notifier.notify_cloud_server(bands_status, "Test Situation", relays_status_off)
+
+    # THEN
+    data = orchestrator_notifier.http_post_in_dedicated_thread.call_args.kwargs["data"]
+    assert data["wifi_status"] is True
+    assert data["band_2GHz_status"] is True
+    assert data["band_5GHz_status"] is False
+    assert data["band_6GHz_status"] is True
+    assert data["po0_status"] is False
+    assert data["po1_status"] is False
+    assert data["po2_status"] is False
+
+
+def test_http_post_success(orchestrator_notifier, mock_http):
+    # GIVEN
+    url = "127.0.0.1"
+    port = 5000
+    endpoint = "/notify"
+    data = {"key": "value"}
+    encoded_data = "key=value"
+
+    # GIVEN
+    mock_conn = MagicMock()
+    mock_http.return_value = mock_conn
+    mock_response = MagicMock(status=200, reason="OK")
+    mock_conn.getresponse.return_value = mock_response
+
+    # WHEN
+    orchestrator_notifier.http_post(url, port, endpoint, data)
+
+    # THEN
+    mock_http.assert_called_once_with(url, port, timeout=POST_TIMEOUT_IN_SECS)
+    mock_conn.request.assert_called_once_with(
+        "POST",
+        endpoint,
+        body=encoded_data,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    mock_conn.getresponse.assert_called_once()
+
+
+def test_http_post_failure(orchestrator_notifier, mock_http):
+    # GIVEN
+    url = "127.0.0.1"
+    port = 5000
+    endpoint = "/notify"
+    data = {"key": "value"}
+    encoded_data = "key=value"
+
+    mock_conn = MagicMock()
+    mock_http.return_value = mock_conn
+    mock_response = MagicMock(status=500, reason="Internal Server Error")
+    mock_conn.getresponse.return_value = mock_response
+
+    # WHEN
+    orchestrator_notifier.http_post(url, port, endpoint, data)
+
+    # THEN
+    mock_conn.request.assert_called_once_with(
+        "POST",
+        endpoint,
+        body=encoded_data,
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    mock_conn.getresponse.assert_called_once()
+
+
+def test_http_post_exception(orchestrator_notifier, mock_http):
+    # GIVEN
+    url = "127.0.0.1"
+    port = 5000
+    endpoint = "/notify"
+    data = {"key": "value"}
+    mock_http.side_effect = Exception("Connection error")
+
+    # WHEN
+    with patch("server.orchestrator.notification.service.logger.error") as mock_logger_error:
+        orchestrator_notifier.http_post(url, port, endpoint, data)
+
+        # THEN
+        mock_logger_error.assert_called_once_with("Error when posting to rpi cloud")
+
+
+def test_http_post_in_dedicated_thread(orchestrator_notifier, mock_threading):
+    # GIVEN
+    url = "127.0.0.1"
+    port = 5000
+    endpoint = "/notify"
+    data = {"wifi_status": True}
+    timeout = 2
+
+    # WHEN
+    orchestrator_notifier.http_post_in_dedicated_thread(url, port, endpoint, data, timeout)
+
+    # THEN
+    mock_threading.Thread.assert_called_once()
+    target_fn = mock_threading.Thread.call_args.kwargs["target"]
+    thread_args = mock_threading.Thread.call_args.kwargs["args"]
+    thread_name = mock_threading.Thread.call_args.kwargs["name"]
+    assert target_fn == orchestrator_notifier.http_post
+    assert thread_args == [url, port, endpoint, data, timeout]
+    assert thread_name == "NotificationHttpPost"
+    mock_threading.Thread().start.assert_called_once()

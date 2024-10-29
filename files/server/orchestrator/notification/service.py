@@ -189,9 +189,6 @@ class OrchestratorNotification:
         self, url: str, port: int, endpoint: str, data: dict, timeout: int = POST_TIMEOUT_IN_SECS
     ):
         """HTTP Post"""
-        # Create connection
-        conn = http.client.HTTPConnection(url, port, timeout=timeout)
-
         try:
             # Encode the data
             encoded_data = urllib.parse.urlencode(data)
