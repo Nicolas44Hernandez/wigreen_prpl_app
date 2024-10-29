@@ -13,7 +13,8 @@ def app():
         "PATHS": {"NOTIFY_STATUS": "/notify"},
         "PORT": 5000,
     }
-    app.config["NOTIFICATION"] = {"CLOUD_SECS": 10}
+    app.config["MQTT"] = {"TOPICS": {"MQTT_WIFI_STATUS_RELAYS_TOPIC": "wifi/status/relays"}}
+    app.config["NOTIFICATION"] = {"CLOUD_SECS": 10, "MQTT_WIFI_STATUS_SECS": 10}
     app.config["POLLING"] = {"WIFI_STATUS_SECS": 5}
     return app
 
@@ -27,7 +28,7 @@ def test_init_app(app):
     ) as mock_polling_service:
 
         # WHEN
-        orchestrator = Orchestrator(app)
+        Orchestrator(app)
 
         # THEN
         mock_notification_service.init_notification_module.assert_called_once_with(
@@ -35,6 +36,8 @@ def test_init_app(app):
             server_cloud_notify_status_path="/notify",
             server_cloud_port=5000,
             cloud_notification_period_in_secs=10,
+            mqtt_wifi_status_relays_topic="wifi/status/relays",
+            mqtt_wifi_status_notification_period_in_secs=10,
         )
         mock_polling_service.init_polling_module.assert_called_once_with(
             wifi_status_polling_period_in_secs=5,

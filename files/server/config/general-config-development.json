@@ -30,6 +30,7 @@
         "WIFI_STATUS_SECS": 15
     },
     "NOTIFICATION": {
-        "CLOUD_SECS": 10
+        "CLOUD_SECS": 10,
+        "MQTT_WIFI_STATUS_SECS": 7
     }
 }

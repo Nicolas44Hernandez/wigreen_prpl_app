@@ -10,10 +10,12 @@ HOST = "localhost"
 CLIENT_NAME = "subscriber_test"
 CLIENT_PASSWORD = "lamp"
 TOPIC = "command/relays"
+# TOPIC = "wifi/status/relays"
 
 
 def callback_on_receive(message: str):
     print(f"Message received on topic  {TOPIC} {datetime.now()}")
+    print(message)
 
 
 mqtt_client = mqtt_client_interface(

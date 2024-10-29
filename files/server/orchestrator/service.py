@@ -24,6 +24,12 @@ class Orchestrator:
                 server_cloud_notify_status_path=app.config["CLOUD"]["PATHS"]["NOTIFY_STATUS"],
                 server_cloud_port=app.config["CLOUD"]["PORT"],
                 cloud_notification_period_in_secs=app.config["NOTIFICATION"]["CLOUD_SECS"],
+                mqtt_wifi_status_relays_topic=app.config["MQTT"]["TOPICS"][
+                    "MQTT_WIFI_STATUS_RELAYS_TOPIC"
+                ],
+                mqtt_wifi_status_notification_period_in_secs=app.config["NOTIFICATION"][
+                    "MQTT_WIFI_STATUS_SECS"
+                ],
             )
 
             # Init ressources polling module
