@@ -1,26 +1,5 @@
-import pytest
 from unittest.mock import patch
-from flask import Flask
-from server.rest_api.electrical_panel_controller.rest_controller import (
-    bp as electrical_panel_controller_bp,
-)
-from server.common import ServerBoxException, handle_server_box_exception, ErrorCode
-
-
-@pytest.fixture
-def app_with_bp():
-    """Create a Flask app for testing."""
-    app = Flask(__name__)
-    app.register_error_handler(ServerBoxException, handle_server_box_exception)
-    app.register_blueprint(electrical_panel_controller_bp, url_prefix="/api/electrical_panel")
-
-    return app
-
-
-@pytest.fixture
-def client(app_with_bp):
-    """Create a test client."""
-    return app_with_bp.test_client()
+from server.common import ErrorCode
 
 
 def test_get_relays_status(client, relays_status_off):
@@ -31,7 +10,7 @@ def test_get_relays_status(client, relays_status_off):
         mock_service.get_relays_last_received_status.return_value = relays_status_off
 
         # WHEN
-        response = client.get("api/electrical_panel/status")
+        response = client.get("api/electrical_panel")
 
         # THEN
         assert response.status_code == 200
@@ -48,7 +27,7 @@ def test_post_relays_status(client):
 
         # WHEN
         response = client.post(
-            "api/electrical_panel/status",
+            "api/electrical_panel",
             query_string={"relay_0": "true", "relay_1": "false", "relay_2": "yes"},
         )
 
@@ -66,7 +45,7 @@ def test_post_relays_status_missing_args(client):
         "server.rest_api.electrical_panel_controller.rest_controller.electrical_panel_manager_service"
     ):
         # WHEN
-        response = client.post("api/electrical_panel/status")
+        response = client.post("api/electrical_panel")
 
         # THEN
         assert response.status_code == 400
@@ -79,9 +58,7 @@ def test_post_relays_status_exception(client):
         "server.rest_api.electrical_panel_controller.rest_controller.electrical_panel_manager_service"
     ):
         # WHEN
-        response = client.post(
-            "api/electrical_panel/status", query_string={"relay_0": "invalid_value"}
-        )
+        response = client.post("api/electrical_panel", query_string={"relay_0": "invalid_value"})
 
         # THEN
         assert response.status_code == 400
@@ -98,7 +75,7 @@ def test_get_single_relay_status(client, relays_status_off):
         )
 
         # WHEN
-        response = client.get("api/electrical_panel/relay/status", query_string={"relay": "1"})
+        response = client.get("api/electrical_panel/relay", query_string={"relay": "1"})
 
         # THEN
         assert response.status_code == 200
@@ -112,7 +89,7 @@ def test_get_single_relay_status_missing_relay(client):
         "server.rest_api.electrical_panel_controller.rest_controller.electrical_panel_manager_service"
     ):
         # WHEN
-        response = client.get("api/electrical_panel/relay/status")
+        response = client.get("api/electrical_panel/relay")
 
         # THEN
         assert response.status_code == 400
@@ -125,9 +102,7 @@ def test_get_single_relay_status_invalid_relay(client):
         "server.rest_api.electrical_panel_controller.rest_controller.electrical_panel_manager_service"
     ):
         # WHEN
-        response = client.get(
-            "api/electrical_panel/relay/status", query_string={"relay": "invalid"}
-        )
+        response = client.get("api/electrical_panel/relay", query_string={"relay": "invalid"})
 
         # THEN
         assert response.status_code == 400

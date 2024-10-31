@@ -23,10 +23,13 @@ class WifiStatusApi(MethodView):
         # Retrieve query args
         new_status_from_query = request.args.get("status", default=None)
         # Convert to boolean
-        if new_status_from_query.lower() in ["true", "1", "yes", "up"]:
-            new_status = "Up"
-        elif new_status_from_query.lower() in ["false", "0", "no", "down"]:
-            new_status = "Down"
+        if new_status_from_query is not None:
+            if new_status_from_query.lower() in ["true", "1", "yes", "up"]:
+                new_status = "Up"
+            elif new_status_from_query.lower() in ["false", "0", "no", "down"]:
+                new_status = "Down"
+            else:
+                raise ServerBoxException(ErrorCode.ERROR_IN_REQUEST_ARGS)
         else:
             raise ServerBoxException(ErrorCode.ERROR_IN_REQUEST_ARGS)
 
@@ -42,7 +45,7 @@ class WifiBandStatusApi(MethodView):
         """Get livebox wifi status"""
         logger.info(f"GET api/wifi/bands")
         # Retrieve query args
-        band = request.args.get("band")
+        band = request.args.get("band", default=None)
         if band is None:
             raise ServerBoxException(ErrorCode.ERROR_IN_REQUEST_ARGS)
         status = wifi_bands_manager_service.get_band_status(band=band)
@@ -56,11 +59,14 @@ class WifiBandStatusApi(MethodView):
         new_status = None
         logger.info(f"POST api/wifi/bands")
         # Convert to boolean
-        if new_status_from_query.lower() in ["true", "1", "yes", "up"]:
-            new_status = "Up"
-        elif new_status_from_query.lower() in ["false", "0", "no", "down"]:
-            new_status = "Down"
-        if band is None or new_status is None:
+        if band is not None and new_status_from_query is not None:
+            if new_status_from_query.lower() in ["true", "1", "yes", "up"]:
+                new_status = "Up"
+            elif new_status_from_query.lower() in ["false", "0", "no", "down"]:
+                new_status = "Down"
+            else:
+                raise ServerBoxException(ErrorCode.ERROR_IN_REQUEST_ARGS)
+        else:
             raise ServerBoxException(ErrorCode.ERROR_IN_REQUEST_ARGS)
 
         # Set band status

@@ -16,6 +16,7 @@ def app():
     app.config["MQTT"] = {"TOPICS": {"MQTT_WIFI_STATUS_RELAYS_TOPIC": "wifi/status/relays"}}
     app.config["NOTIFICATION"] = {"CLOUD_SECS": 10, "MQTT_WIFI_STATUS_SECS": 10}
     app.config["POLLING"] = {"WIFI_STATUS_SECS": 5}
+    app.config["SERVER_PORT"] = 5000
     return app
 
 
@@ -38,6 +39,7 @@ def test_init_app(app):
             cloud_notification_period_in_secs=10,
             mqtt_wifi_status_relays_topic="wifi/status/relays",
             mqtt_wifi_status_notification_period_in_secs=10,
+            server_port=5000,
         )
         mock_polling_service.init_polling_module.assert_called_once_with(
             wifi_status_polling_period_in_secs=5,

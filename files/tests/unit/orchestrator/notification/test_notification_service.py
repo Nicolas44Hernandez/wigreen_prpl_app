@@ -195,6 +195,7 @@ def test_orchestrator_notification_init():
         cloud_notification_period_in_secs=10,
         mqtt_wifi_status_notification_period_in_secs=10,
         mqtt_wifi_status_relays_topic="/topic",
+        server_port=5000,
     )
 
     # THEN
@@ -204,6 +205,7 @@ def test_orchestrator_notification_init():
     assert orchestrator.cloud_notification_period_in_secs == 10
     assert orchestrator.mqtt_wifi_status_notification_period_in_secs == 10
     assert orchestrator.mqtt_wifi_status_relays_topic == "/topic"
+    assert orchestrator.server_port == 5000
     orchestrator.schedule_notifications.assert_called_once()
 
 
@@ -218,6 +220,7 @@ def test_notify_cloud_server_success(orchestrator_notifier, relays_status_off, m
     orchestrator_notifier.rpi_cloud_ip_addr = "127.0.0.1"
     orchestrator_notifier.server_cloud_port = 5000
     orchestrator_notifier.server_cloud_notify_status_path = "/notify"
+    orchestrator_notifier.server_port = 5000
     orchestrator_notifier.http_post_in_dedicated_thread = MagicMock()
     mock_socket.return_value.getsockname.return_value = ("192.168.1.100", 0)
 
@@ -227,7 +230,7 @@ def test_notify_cloud_server_success(orchestrator_notifier, relays_status_off, m
     # THEN
     orchestrator_notifier.http_post_in_dedicated_thread.assert_called_once()
     data = orchestrator_notifier.http_post_in_dedicated_thread.call_args.kwargs["data"]
-    assert data["orquestrator_base_url"] == "http://192.168.1.100:5000/"
+    assert data["orquestrator_base_url"] == "http://192.168.1.100:5000/api/"
     assert data["wifi_status"] is True
     assert data["band_2GHz_status"] is True
     assert data["band_5GHz_status"] is False
