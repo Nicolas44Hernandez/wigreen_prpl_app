@@ -1,6 +1,7 @@
 {
     "API_TITLE": "ORCHESTRATOR API",
     "API_VERSION": "v1",
+    "SERVER_PORT": 6060,
     "MQTT": {
         "BASIC": {
             "MQTT_BROKER_ADDRESS": "192.168.102.12",

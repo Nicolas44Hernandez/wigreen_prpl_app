@@ -25,7 +25,7 @@ class RelaysStatusApi(MethodView):
     def get(self):
         """Get relays status"""
 
-        logger.info(f"GET api/electrical_panel/status")
+        logger.info(f"GET api/electrical_panel")
 
         # Call electrical panel manager service to get relays status
         relays_status = electrical_panel_manager_service.get_relays_last_received_status()
@@ -62,7 +62,7 @@ class RelaysStatusApi(MethodView):
         if len(statuses_from_query) == 0:
             raise ServerBoxException(ErrorCode.ERROR_IN_REQUEST_ARGS)
 
-        logger.info(f"POST api/electrical_panel/status/")
+        logger.info(f"POST api/electrical_panel")
 
         relays_statuses = RelaysStatus(
             relay_statuses=statuses_from_query, command=True, timestamp=datetime.now()

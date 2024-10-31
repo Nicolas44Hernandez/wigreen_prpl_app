@@ -30,6 +30,7 @@ class Orchestrator:
                 mqtt_wifi_status_notification_period_in_secs=app.config["NOTIFICATION"][
                     "MQTT_WIFI_STATUS_SECS"
                 ],
+                server_port=app.config["SERVER_PORT"],
             )
 
             # Init ressources polling module

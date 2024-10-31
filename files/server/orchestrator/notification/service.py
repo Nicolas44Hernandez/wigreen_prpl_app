@@ -87,6 +87,7 @@ class OrchestratorNotification:
     rpi_cloud_ip_addr: str
     server_cloud_port: int
     cloud_notification_period_in_secs: int
+    server_port: int
 
     def init_notification_module(
         self,
@@ -96,6 +97,7 @@ class OrchestratorNotification:
         cloud_notification_period_in_secs: int,
         mqtt_wifi_status_relays_topic: str,
         mqtt_wifi_status_notification_period_in_secs: int,
+        server_port: int,
     ):
         """Initialize the polling service for the orchestrator"""
         logger.info("initializing Orchestrator polling module")
@@ -108,6 +110,7 @@ class OrchestratorNotification:
         self.mqtt_wifi_status_notification_period_in_secs = (
             mqtt_wifi_status_notification_period_in_secs
         )
+        self.server_port = server_port
 
         # Schedule notifications
         self.schedule_notifications()
@@ -154,7 +157,7 @@ class OrchestratorNotification:
                     band_status_5GHz = True if band_status.status == "Up" else False
                 elif band_status.band == "6GHz":
                     band_status_6GHz = True if band_status.status == "Up" else False
-                if band_status.status:
+                if band_status.status == "Up":
                     wifi_status = True
 
             # Get electrical panel power outlet status
@@ -178,10 +181,16 @@ class OrchestratorNotification:
 
             # Get Orchestrator ip address
             try:
+                logger.error(f"Cloud ip address {self.rpi_cloud_ip_addr}: {self.server_cloud_port}")
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                s.connect(("192.168.1.122", 80))
+                s.connect((self.rpi_cloud_ip_addr, self.server_cloud_port))
                 orchestrator_ip_addr = s.getsockname()[0]
-                orquestrator_base_url = f"http://{orchestrator_ip_addr}:5000/"
+                orquestrator_base_url = f"http://{orchestrator_ip_addr}:{self.server_port}/api/"
+                # TODO: Reactivate when cloud in WAN
+                ##############################################################
+                orquestrator_base_url = f"http://192.168.102.1:{self.server_port}/api/"
+                # orquestrator_base_url = f"http://192.168.102.12:{self.server_port}/api/"
+                ##############################################################
                 s.close()
             except:
                 logger.error("Error retreiving orchestrator IP")
