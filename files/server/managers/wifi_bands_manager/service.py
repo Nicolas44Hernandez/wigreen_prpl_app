@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 BANDS = ["2.4GHz", "5GHz", "6GHz"]
 STATUSES = ["Up", "Down"]
-STATUS_CHANGE_TIMEOUT_IN_SECS = 15
+STATUS_CHANGE_TIMEOUT_IN_SECS = 10
 
 
 class WifiBandsManager:
@@ -108,7 +108,7 @@ class WifiBandsManager:
         while now < status_change_timeout:
             current_band_status = self.get_band_status(band)
             if current_band_status == new_status:
-                logger.error(f"NEw band status: {current_band_status}")
+                logger.error(f"New band status: {current_band_status}")
                 return current_band_status
             time.sleep(0.3)
             now = datetime.now()

@@ -14,7 +14,7 @@ class MQTTMessageApi(MethodView):
     def get(self):
         """Send message to MQTT broker"""
 
-        logger.info(f"GET mqtt/local")
+        logger.info(f"GET /mqtt")
         mqtt_manager_service.publish_message(
             topic="command/relays", message={"data": "relays_status_test"}
         )

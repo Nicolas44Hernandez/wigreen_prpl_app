@@ -50,6 +50,9 @@ def create_app(
         config = json.load(config_file)
         app.config.update(config)
 
+    if 'SERVER_PORT' not in app.config:
+        app.config['SERVER_PORT'] = 5000
+
     # Load logging configuration and configure flask application logger
     with open(logging_config, "r") as config_file:
         config = json.load(config_file)
@@ -90,6 +93,6 @@ def register_apis(app: Flask):
     # Register error handler
     app.register_error_handler(ServerBoxException, handle_server_box_exception)
     # Register REST blueprints
-    app.register_blueprint(wifi_controller_bp, url_prefix="/api/wifi")
-    app.register_blueprint(electrical_panel_controller_bp, url_prefix="/api/electrical_panel")
-    app.register_blueprint(mqtt_controller_bp, url_prefix="/api/mqtt")
+    app.register_blueprint(wifi_controller_bp, url_prefix="/api")
+    app.register_blueprint(electrical_panel_controller_bp, url_prefix="/api")
+    app.register_blueprint(mqtt_controller_bp, url_prefix="/api")
