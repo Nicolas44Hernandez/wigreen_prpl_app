@@ -15,6 +15,10 @@ def app():
     }
     app.config["MQTT"] = {"TOPICS": {"MQTT_WIFI_STATUS_RELAYS_TOPIC": "wifi/status/relays"}}
     app.config["NOTIFICATION"] = {"CLOUD_SECS": 10, "MQTT_WIFI_STATUS_SECS": 10}
+    app.config["USE_SITUATIONS"] = {
+        "CONFIG_FILE": "use/situations/config/file.json",
+        "DEFAULT": "DEFAULT_USE_SITUATION",
+    }
     app.config["POLLING"] = {"WIFI_STATUS_SECS": 5}
     app.config["SERVER_PORT"] = 5000
     return app
@@ -25,6 +29,8 @@ def test_init_app(app):
     with patch(
         "server.orchestrator.service.orchestrator_notification_service"
     ) as mock_notification_service, patch(
+        "server.orchestrator.service.orchestrator_use_situations_service"
+    ) as mock_use_situations_service, patch(
         "server.orchestrator.service.orchestrator_polling_service"
     ) as mock_polling_service:
 
@@ -43,4 +49,8 @@ def test_init_app(app):
         )
         mock_polling_service.init_polling_module.assert_called_once_with(
             wifi_status_polling_period_in_secs=5,
+        )
+        mock_use_situations_service.init_use_situations_module.assert_called_once_with(
+            use_situations_config_file="use/situations/config/file.json",
+            default_use_situation="DEFAULT_USE_SITUATION",
         )

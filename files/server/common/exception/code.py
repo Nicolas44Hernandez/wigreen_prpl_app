@@ -24,6 +24,12 @@ class ErrorCode(Enum):
         400,
         "The relays status have not been received yet",
     )
+    USE_SITUATIONS_CONFIG_FILE_ERROR = (
+        9,
+        500,
+        "Error in Use situations configuration load, check file",
+    )
+    INVALID_USE_SITUATION = (10, 400, "Invalid use situation selected")
 
     # pylint: disable=unused-argument
     def __new__(cls, *args, **kwds):

@@ -17,6 +17,7 @@ from server.rest_api.electrical_panel_controller import (
     bp as electrical_panel_controller_bp,
 )
 from server.rest_api.mqtt_controller import bp as mqtt_controller_bp
+from server.rest_api.use_situations_controller import bp as use_situations_controller_bp
 
 # Common
 from server.common import ServerBoxException, handle_server_box_exception
@@ -50,8 +51,8 @@ def create_app(
         config = json.load(config_file)
         app.config.update(config)
 
-    if 'SERVER_PORT' not in app.config:
-        app.config['SERVER_PORT'] = 5000
+    if "SERVER_PORT" not in app.config:
+        app.config["SERVER_PORT"] = 5000
 
     # Load logging configuration and configure flask application logger
     with open(logging_config, "r") as config_file:
@@ -96,3 +97,4 @@ def register_apis(app: Flask):
     app.register_blueprint(wifi_controller_bp, url_prefix="/api")
     app.register_blueprint(electrical_panel_controller_bp, url_prefix="/api")
     app.register_blueprint(mqtt_controller_bp, url_prefix="/api")
+    app.register_blueprint(use_situations_controller_bp, url_prefix="/api")

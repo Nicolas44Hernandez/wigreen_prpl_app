@@ -1,0 +1,99 @@
+{
+    "USE_SITUATIONS": {
+        "PRESENCE_HOME_OFFICE": {
+            "SWITCH_TO": "ABSENCE_LOW_CONSUMPTION",
+            "WIFI": {
+                "2.4GHz": true,
+                "5GHz": true,
+                "6GHz": true
+            },
+            "ELECTRICAL_OUTLETS": {
+                "0": true,
+                "1": true,
+                "2": true
+            },
+            "POWER_STRIP": {
+                "1": true,
+                "2": true,
+                "3": true,
+                "4": true
+            }
+        },
+        "PRESENCE_DAY_LOW_CONSUMPTION": {
+            "SWITCH_TO": "ABSENCE_LOW_CONSUMPTION",
+            "WIFI": {
+                "2.4GHz": true,
+                "5GHz": false,
+                "6GHz": false
+            },
+            "ELECTRICAL_OUTLETS": {
+                "0": true,
+                "1": true,
+                "2": true
+            },
+            "POWER_STRIP": {
+                "1": true,
+                "2": true,
+                "3": false,
+                "4": false
+            }
+        },
+        "PRESENCE_NIGHT_LOW_CONSUMPTION": {
+            "SWITCH_TO": "ABSENCE_LOW_CONSUMPTION",
+            "WIFI": {
+                "2.4GHz": false,
+                "5GHz": false,
+                "6GHz": false
+            },
+            "ELECTRICAL_OUTLETS": {
+                "0": false,
+                "1": false,
+                "2": true
+            },
+            "POWER_STRIP": {
+                "1": true,
+                "2": false,
+                "3": false,
+                "4": false
+            }
+        },
+        "ABSENCE_LOW_CONSUMPTION": {
+            "SWITCH_TO": "PRESENCE_DAY_LOW_CONSUMPTION",
+            "WIFI": {
+                "2.4GHz": false,
+                "5GHz": false,
+                "6GHz": false
+            },
+            "ELECTRICAL_OUTLETS": {
+                "0": false,
+                "1": false,
+                "2": false
+            },
+            "POWER_STRIP": {
+                "1": false,
+                "2": false,
+                "3": false,
+                "4": false
+            }
+        },
+        "DEEP_SLEEP": {
+            "SWITCH_TO": "PRESENCE_DAY_LOW_CONSUMPTION",
+            "WIFI": {
+                "2.4GHz": false,
+                "5GHz": false,
+                "6GHz": false
+            },
+            "ELECTRICAL_OUTLETS": {
+                "0": false,
+                "1": false,
+                "2": false
+            },
+            "POWER_STRIP": {
+                "1": false,
+                "2": false,
+                "3": false,
+                "4": false
+            }
+        }
+    }
+}

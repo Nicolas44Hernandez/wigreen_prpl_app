@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Iterable
 from server.managers.wifi_bands_manager import wifi_bands_manager_service, BANDS
 from server.managers.electrical_panel_manager import electrical_panel_manager_service
+from server.orchestrator.use_situations import orchestrator_use_situations_service
 from server.managers.wifi_bands_manager.model import WifiBandStatus
 from server.managers.mqtt_manager import mqtt_manager_service
 from server.interfaces.mqtt_interface import RelaysStatus, SingleRelayStatus
@@ -27,6 +28,7 @@ class CloudServerNotifier:
         while not self._stop_event.is_set():
             # Retreiving values
             wifi_status = wifi_bands_manager_service.get_current_wifi_status()
+            current_use_situation = orchestrator_use_situations_service.get_current_use_situation()
             try:
                 relays_statuses = electrical_panel_manager_service.get_relays_last_received_status()
             except:
@@ -35,7 +37,7 @@ class CloudServerNotifier:
             logger.info("Sending cloud notification ...")
             orchestrator_notification_service.notify_cloud_server(
                 bands_status=wifi_status.bands_status,
-                use_situation="TODO",
+                use_situation=current_use_situation,
                 relay_statuses=relays_statuses,
             )
             time.sleep(self.period)
