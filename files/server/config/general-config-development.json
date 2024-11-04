@@ -20,6 +20,10 @@
         }
     },
     "WIFI_DATAMODEL_CONFIG_FILE": "files/server/config/wifi-datamodel.json",
+    "USE_SITUATIONS": {
+        "CONFIG_FILE": "files/server/config/use-situations.json",
+        "DEFAULT": "PRESENCE_HOME_OFFICE"
+    },
     "CLOUD": {
         "SERVER_IP": "localhost",
         "PORT": 3000,

@@ -72,6 +72,9 @@ do_install () {
         # polling
         install -d ${D}/usr/srv/server/orchestrator/polling
         install -m 0644 ${S}/server/orchestrator/polling/* ${D}/usr/srv/server/orchestrator/polling/
+        # use_situations
+        install -d ${D}/usr/srv/server/orchestrator/use_situations
+        install -m 0644 ${S}/server/orchestrator/use_situations/* ${D}/usr/srv/server/orchestrator/use_situations/
 
         ### REST API
         install -d ${D}/usr/srv/server/rest_api
@@ -85,6 +88,9 @@ do_install () {
         # electrical_panel_controller
         install -d ${D}/usr/srv/server/rest_api/electrical_panel_controller
         install -m 0644 ${S}/server/rest_api/electrical_panel_controller/* ${D}/usr/srv/server/rest_api/electrical_panel_controller/
+        # use_situations_controller
+        install -d ${D}/usr/srv/server/rest_api/use_situations_controller
+        install -m 0644 ${S}/server/rest_api/use_situations_controller/* ${D}/usr/srv/server/rest_api/use_situations_controller/
 
         ### POC
         install -d ${D}/usr/srv/poc

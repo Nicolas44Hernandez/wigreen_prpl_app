@@ -1,14 +1,11 @@
 """ REST controller for relays management ressource """
 
 import logging
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, request
 from datetime import datetime
 from flask.views import MethodView
 from server.managers.electrical_panel_manager import electrical_panel_manager_service
-
-# from .rest_model import SingleRelayStatusSchema, RelaysStatusResponseSchema, RelaysStatusQuerySchema
 from server.common import ServerBoxException, ErrorCode
-
 from server.interfaces.mqtt_interface import SingleRelayStatus, RelaysStatus
 
 

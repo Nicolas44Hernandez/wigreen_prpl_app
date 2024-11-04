@@ -2,6 +2,7 @@ import logging
 from flask import Flask
 from server.orchestrator.polling import orchestrator_polling_service
 from server.orchestrator.notification import orchestrator_notification_service
+from server.orchestrator.use_situations import orchestrator_use_situations_service
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,12 @@ class Orchestrator:
         """Initialize Orchestrator"""
         if app is not None:
             logger.info("initializing Orchestrator")
+
+            # Init use situations module
+            orchestrator_use_situations_service.init_use_situations_module(
+                use_situations_config_file=app.config["USE_SITUATIONS"]["CONFIG_FILE"],
+                default_use_situation=app.config["USE_SITUATIONS"]["DEFAULT"],
+            )
 
             # Init notification module
             orchestrator_notification_service.init_notification_module(

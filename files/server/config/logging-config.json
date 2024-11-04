@@ -40,6 +40,13 @@
             ],
             "propagate": false
         },
+        "server.orchestrator.use_situations": {
+            "level": "INFO",
+            "handlers": [
+                "console"
+            ],
+            "propagate": false
+        },
         "server.rest_api.wifi_controller": {
             "level": "INFO",
             "handlers": [

@@ -21,9 +21,11 @@ def mock_services():
     ) as mock_electrical_service, patch(
         "server.orchestrator.notification.service.orchestrator_notification_service"
     ) as mock_notification_service, patch(
+        "server.orchestrator.notification.service.orchestrator_use_situations_service"
+    ) as mock_use_situations_service, patch(
         "server.orchestrator.notification.service.mqtt_manager_service"
     ) as mock_mqtt_manager_service:
-        yield mock_wifi_service, mock_electrical_service, mock_notification_service, mock_mqtt_manager_service
+        yield mock_wifi_service, mock_electrical_service, mock_notification_service, mock_use_situations_service, mock_mqtt_manager_service
 
 
 @pytest.fixture
@@ -89,8 +91,15 @@ def test_post_cloud_notification_success(
     mock_sleep,
 ):
     # GIVEN
-    mock_wifi_service, mock_electrical_service, mock_notification_service, _ = mock_services
+    (
+        mock_wifi_service,
+        mock_electrical_service,
+        mock_notification_service,
+        mock_use_situations_service,
+        _,
+    ) = mock_services
     mock_wifi_service.get_current_wifi_status.return_value = wifi_status_off
+    mock_use_situations_service.get_current_use_situation.return_value = "CURRENT_USE_SITUATION"
     mock_electrical_service.get_relays_last_received_status.return_value = relays_status_off
     cloud_server_notifier._stop_event = MagicMock()
     cloud_server_notifier._stop_event.is_set.side_effect = [False, True]
@@ -100,9 +109,11 @@ def test_post_cloud_notification_success(
 
     # THEN
     mock_wifi_service.update_wifi_status_attribute.assert_called_once()
+    mock_wifi_service.get_current_wifi_status.assert_called_once()
+    mock_use_situations_service.get_current_use_situation.assert_called_once()
     mock_notification_service.notify_cloud_server.assert_called_once_with(
         bands_status=wifi_status_off.bands_status,
-        use_situation="TODO",
+        use_situation="CURRENT_USE_SITUATION",
         relay_statuses=relays_status_off,
     )
     assert cloud_server_notifier._stop_event.is_set.call_count == 2
@@ -115,7 +126,14 @@ def test_post_cloud_notification_with_exception(
     mock_sleep,
 ):
     # GIVEN
-    mock_wifi_service, mock_electrical_service, mock_notification_service, _ = mock_services
+    (
+        mock_wifi_service,
+        mock_electrical_service,
+        mock_notification_service,
+        mock_use_situations_service,
+        _,
+    ) = mock_services
+    mock_use_situations_service.get_current_use_situation.return_value = "CURRENT_USE_SITUATION"
     mock_wifi_service.get_current_wifi_status.return_value = wifi_status_off
     mock_electrical_service.get_relays_last_received_status.side_effect = Exception("Error")
     cloud_server_notifier._stop_event = MagicMock()
@@ -126,9 +144,10 @@ def test_post_cloud_notification_with_exception(
 
     # THEN
     mock_wifi_service.update_wifi_status_attribute.assert_called_once()
+    mock_wifi_service.get_current_wifi_status.assert_called_once()
     mock_notification_service.notify_cloud_server.assert_called_once_with(
         bands_status=wifi_status_off.bands_status,
-        use_situation="TODO",
+        use_situation="CURRENT_USE_SITUATION",
         relay_statuses=None,
     )
     assert cloud_server_notifier._stop_event.is_set.call_count == 2
@@ -152,7 +171,7 @@ def test_mqtt_wifi_status_notifier_start_and_stop(mqtt_wifi_status_notifier, moc
 
 def test_publish_mqtt_notification(mqtt_wifi_status_notifier, mock_services, wifi_status_on):
     # GIVEN
-    mock_wifi_service, _, mock_notification_service, _ = mock_services
+    mock_wifi_service, _, mock_notification_service, _, _ = mock_services
     mock_wifi_service.get_current_wifi_status.return_value = wifi_status_on
     mqtt_wifi_status_notifier._stop_event = MagicMock()
     mqtt_wifi_status_notifier._stop_event.is_set.side_effect = [False, True]
@@ -169,7 +188,7 @@ def test_publish_mqtt_notification(mqtt_wifi_status_notifier, mock_services, wif
 
 def test_publish_mqtt_notification_with_no_status(mqtt_wifi_status_notifier, mock_services):
     # GIVEN
-    mock_wifi_service, _, mock_notification_service, _ = mock_services
+    mock_wifi_service, _, mock_notification_service, _, _ = mock_services
     mock_wifi_service.get_current_wifi_status.return_value = None
     mqtt_wifi_status_notifier._stop_event = MagicMock()
     mqtt_wifi_status_notifier._stop_event.is_set.side_effect = [False, True]
@@ -414,7 +433,7 @@ def test_notify_wifi_status_mqtt_success(orchestrator_notifier, mock_services, w
     # GIVEN
     test_topic = "test/topic"
     orchestrator_notifier.mqtt_wifi_status_relays_topic = test_topic
-    _, _, _, mock_mqtt_manager_service = mock_services
+    _, _, _, _, mock_mqtt_manager_service = mock_services
 
     expected_relays_statuses = RelaysStatus(
         relay_statuses=[
@@ -443,7 +462,7 @@ def test_notify_wifi_status_mqtt_failure(orchestrator_notifier, mock_services, w
     # GIVEN
     test_topic = "test/topic"
     orchestrator_notifier.mqtt_wifi_status_relays_topic = test_topic
-    _, _, _, mock_mqtt_manager_service = mock_services
+    _, _, _, _, mock_mqtt_manager_service = mock_services
     expected_relays_statuses = RelaysStatus(
         relay_statuses=[
             MagicMock(relay_number=0, status=True, powered=True),
